@@ -1,0 +1,26 @@
+{
+  "name": "netwark",
+  "version": "0.1.0",
+  "description": "# Getting Started - Create a Python virtual environment.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Themimitoof/netwark.git"
+  },
+  "author": "Michael Vieira <contact+dev[âT]mvieira[d¤T]fr>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Themimitoof/netwark/issues"
+  },
+  "homepage": "https://github.com/Themimitoof/netwark#readme",
+  "dependencies": {
+    "siimple": "^3.3.0"
+  },
+  "devDependencies": {
+    "gulp": "^4.0.0",
+    "node-sass": "^4.11.0"
+  }
+}

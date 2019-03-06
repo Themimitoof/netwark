@@ -5,14 +5,14 @@ import zope.sqlalchemy
 
 # import or define all models here to ensure they are attached to the
 # Base.metadata prior to any initialization routines
-from .ping import Ping  # flake8: noqa
+from .operation import Operation
 
 # run configure_mappers after defining all of the models to ensure
 # all relationships can be setup
 configure_mappers()
 
 
-def get_engine(settings, prefix="sqlalchemy."):
+def get_engine(settings, prefix='sqlalchemy.'):
     return engine_from_config(settings, prefix)
 
 
@@ -58,21 +58,21 @@ def includeme(config):
 
     """
     settings = config.get_settings()
-    settings["tm.manager_hook"] = "pyramid_tm.explicit_manager"
+    settings['tm.manager_hook'] = 'pyramid_tm.explicit_manager'
 
     # use pyramid_tm to hook the transaction lifecycle to the request
-    config.include("pyramid_tm")
+    config.include('pyramid_tm')
 
     # use pyramid_retry to retry a request when transient exceptions occur
-    config.include("pyramid_retry")
+    config.include('pyramid_retry')
 
     session_factory = get_session_factory(get_engine(settings))
-    config.registry["dbsession_factory"] = session_factory
+    config.registry['dbsession_factory'] = session_factory
 
     # make request.dbsession available for use in Pyramid
     config.add_request_method(
         # r.tm is the transaction manager used by pyramid_tm
         lambda r: get_tm_session(session_factory, r.tm),
-        "dbsession",
+        'dbsession',
         reify=True,
     )
