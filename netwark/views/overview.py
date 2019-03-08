@@ -8,4 +8,6 @@ from .. import models
 
 @view_config(route_name="overview", renderer="../templates/overview.pug")
 def overview_view(request):
-    return {}
+    return {
+        'pageTitle': 'Overview',
+    }
