@@ -17,6 +17,7 @@ transaction = "^2.4"
 pyramid_retry = "^1.0"
 celery = "^4.2"
 "zope.sqlalchemy" = "^1.1"
+geoip2 = "^2.9"
 
 [tool.poetry.dev-dependencies]
 plaster_pastedeploy = "^0.6.0"
@@ -27,10 +28,10 @@ pytest = "^4.3"
 pytest-cov = "^2.6"
 WebTest = "^2.0"
 
+[tool.black]
+line-length = 79
+skip-string-normalization = true
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
 
-[tool.black]
-line-length = 79
-skip-string-normalization = true

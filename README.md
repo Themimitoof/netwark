@@ -1,36 +1,44 @@
-# Netwark
+# Netwark: A Netadmin tool for lazy netadmins
+Netwark was made for all people who want to have a network toolbox in their browser/phone with some additionnal cool stuff like _smokeping_, _multi zone ping_ and _mtr_.
 
 # Getting Started
 - Create a Python virtual environment.
-
-    python3 -m venv env
+```bash
+python3 -m venv env
+```
 
 - Upgrade packaging tools.
-
-    env/bin/pip install --upgrade pip setuptools
+```bash
+env/bin/pip install --upgrade pip setuptools
+```
 
 - Install the project in editable mode with its testing requirements.
-
-    env/bin/pip install -e ".[testing]"
+```bash
+env/bin/pip install -e ".[testing]"
+```
 
 - Initialize and upgrade the database using Alembic.
-
     - Generate your first revision.
-
-        env/bin/alembic -c development.ini revision --autogenerate -m "init"
+    ```bash
+    env/bin/alembic -c development.ini revision --autogenerate -m "init"
+    ```
 
     - Upgrade to that revision.
-
-        env/bin/alembic -c development.ini upgrade head
+    ```bash
+    env/bin/alembic -c development.ini upgrade head
+    ```
 
 - Load default data into the database using a script.
-
-    env/bin/initialize_netwark_db development.ini
+```bash
+env/bin/initialize_netwark_db development.ini
+```
 
 - Run your project's tests.
-
-    env/bin/pytest
+```bash
+env/bin/pytest
+```
 
 - Run your project.
-
-    env/bin/pserve development.ini
+```bash
+env/bin/pserve development.ini
+```

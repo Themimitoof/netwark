@@ -18,7 +18,7 @@ requires = [
     'transaction',
     'pyramid_retry',
     'zope.sqlalchemy',
-    'celery'
+    'celery',
 ]
 
 dev_require = [
@@ -26,7 +26,7 @@ dev_require = [
     'waitress',
     'pyramid_debugtoolbar',
     'pycodestyle',
-    'black'
+    'black',
 ]
 
 tests_require = [
@@ -53,17 +53,12 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    extras_require={
-        'testing': tests_require,
-        'dev': dev_require
-    },
+    extras_require={'testing': tests_require, 'dev': dev_require},
     install_requires=requires,
     entry_points={
-        'paste.app_factory': [
-            'main = netwark:main',
-        ],
+        'paste.app_factory': ['main = netwark:main'],
         'console_scripts': [
-            'initialize_netwark_db=netwark.bin.initialize_db:main',
+            'initialize_netwark_db=netwark.bin.initialize_db:main'
         ],
     },
 )

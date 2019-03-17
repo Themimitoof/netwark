@@ -6,11 +6,11 @@ from sqlalchemy.exc import DBAPIError
 from .. import models
 
 
-@view_config(route_name="overview", renderer="../templates/overview.pug")
-def overview_view(request):
+@view_config(route_name="ipcalc", renderer="../templates/ipcalc.pug")
+def ipalc_view(request):
     return {
         'siteOptions': {
-            'pageTitle': 'Overview'
+            'pageTitle': 'IP Calculator'
         },
         'data': {}
     }

@@ -1,5 +1,4 @@
 const gulp = require('gulp'),
-    watch = require('gulp-watch'),
     sass = require('gulp-sass'),
     rename = require('gulp-rename'),
     uglify = require('gulp-uglify'),
@@ -17,3 +16,8 @@ gulp.task('css', () => {
         .pipe(rename('app.css'))
         .pipe(gulp.dest('./dist/css'))
 });
+
+
+gulp.task('css:watch', () => {
+    return gulp.watch('./assets/scss/main.scss', ['css']);
+ });
