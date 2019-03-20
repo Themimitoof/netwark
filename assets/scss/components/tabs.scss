@@ -1,0 +1,18 @@
+// Rewrite tabs for removing margin-bottom
+.siimple-tabs {
+    margin-bottom: 0;
+}
+
+.tabs-block {
+    display: none;
+    padding: 10px;
+    margin-bottom: 20px;
+
+    border-radius: 0 0 5px 5px;
+    border-left: 2px solid #dde5ee;
+    border-bottom: 2px solid #dde5ee;
+    border-right: 2px solid #dde5ee;
+
+}
+
+.tabs-block.active { display: block; }

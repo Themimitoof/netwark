@@ -13,7 +13,7 @@ def includeme(config):
 
     # WHOIS routes
     config.add_route('whois_main', '/whois')
-    config.add_route('whois_ressource', '/whois/{ressource}')
+    config.add_route('whois_resource', '/whois/{resource}')
 
     # MAC OUI routes
     config.add_route('mac_oui', '/mac-oui')

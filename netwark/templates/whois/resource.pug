@@ -1,0 +1,82 @@
+extends ../layout/main
+
+block content
+    .container
+        h1= siteOptions['pageTitle']
+
+        .siimple-grid
+            .siimple-grid-row
+
+                    .siimple-grid-col.siimple-grid-col--5
+                        .siimple-card
+                            .siimple-card-header
+                                if data['type'] == 'ip'
+                                    | IP informations
+                                elif data['type'] == 'asn'
+                                    | ASN informations
+                                elif data['type'] == 'domain'
+                                    | Domain informations
+                            .siimple-card-body
+                                table
+                                    thead
+                                        th(width="50%")
+                                        th
+
+                                    tbody
+                                        if data['type'] == 'ip'
+                                            tr
+                                                td IP
+                                                td
+                                                    i= data['resource']
+
+                                        if data['type'] == 'ip' or data['type'] == 'asn'
+                                            tr
+                                                td ASN
+                                                td
+                                                    i
+                                                        if data['type'] == 'ip'
+                                                            a(href="/whois/ASXXXXX") ASXXXXX (ORGNAME)
+                                                        else
+                                                            | !{data['resource']} (ORGNAME)
+
+                                            tr
+                                                td Organization
+                                                td
+                                                    i _Organization_
+
+                                            tr
+                                                td Location
+                                                td
+                                                    i X.XXXXXXX, X.XXXXXX
+
+                                        if data['type'] == 'domain'
+                                            tr
+                                                td Registrar
+                                                td
+                                                    i _Organization_
+
+                    .siimple-grid-col.siimple-grid-col--7
+                        .siimple-tabs.siimple-tabs--boxed#whois-tabs(tabs-control="whois-tabs-control")
+                            if data['type'] == 'ip' or data['type'] == 'asn'
+                                .siimple-tabs-item.siimple-tabs-item--selected(tab-block="geo") Geographic informations
+
+                            if data['type'] == 'domain'
+                                .siimple-tabs-item.siimple-tabs-item--selected(tab-block="zone") Zone informations
+                            .siimple-tabs-item(tab-block="raw") Raw WHOIS
+
+                        .tabs-controls#whois-tabs-control
+                            if data['type'] == 'ip' or data['type'] == 'asn'
+                                .tabs-block#geo
+                                    p map
+
+                            if data['type'] == 'domain'
+                                .tabs-block#zone
+                                    p zone
+
+                            .tabs-block#raw
+                                code=data['whois_raw']
+
+
+block append javascript
+    script.
+        tabs("#whois-tabs")
