@@ -563,7 +563,7 @@ transaction = ">=1.6.0"
 "zope.interface" = ">=3.6.0"
 
 [metadata]
-content-hash = "8ddce8b7936615fc277de705bc02dd6e994fb1ca75afd228a2eadb68c1abb58f"
+content-hash = "e6a90754c5d50bf79f4b8593f27c2c9798bcd4a8f05f4e15fdbf1cda1c37d90a"
 python-versions = ">=3.5"
 
 [metadata.hashes]

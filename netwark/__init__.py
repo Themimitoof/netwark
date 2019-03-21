@@ -7,6 +7,7 @@ def main(global_config, **settings):
     with Configurator(settings=settings) as config:
         config.include('.models')
         config.include('pypugjs.ext.pyramid')
+        config.include('.geoip')
         config.include('.routes')
 
         def operation_flags(request):

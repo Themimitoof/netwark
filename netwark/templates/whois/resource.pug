@@ -32,7 +32,7 @@ block content
                                             tr
                                                 td Reverse DNS
                                                 td
-                                                    i gnagna.dns.com
+                                                    i= data['reverse_dns']
 
                                         if data['type'] == 'ip' or data['type'] == 'asn'
                                             tr
@@ -40,7 +40,7 @@ block content
                                                 td
                                                     i
                                                         if data['type'] == 'ip'
-                                                            a(href="/whois/ASXXXXX") ASXXXXX (ORGNAME)
+                                                            a(href="/whois/AS#{data['asn'].autonomous_system_number}") AS#{data['asn'].autonomous_system_number} (#{data['asn'].autonomous_system_organization})
                                                         else
                                                             | !{data['resource']} (ORGNAME)
 
