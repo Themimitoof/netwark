@@ -1,5 +1,6 @@
 import logging
 import re
+import subprocess
 from ipaddress import ip_address
 
 from pyramid.request import Request
@@ -16,12 +17,7 @@ log = logging.getLogger(__name__)
 
 @view_config(route_name="whois_main", renderer="../templates/whois/home.pug")
 def whois_main_view(request: Request):
-    return {
-        'siteOptions': {
-            'pageTitle': 'WHOIS'
-        },
-        'data': {}
-    }
+    return {'siteOptions': {'pageTitle': 'WHOIS'}, 'data': {}}
 
 
 @view_config(
@@ -42,13 +38,16 @@ def whois_resource_view(request: Request):
         # TODO: Return to the previous page with "flash" error.
         return HTTPBadRequest()
 
+    # Retrieve WHOIS data
+    whois_raw = subprocess.Popen(
+        ['whois', resource], stdout=subprocess.PIPE
+    ).stdout.read()
+
     return {
-        'siteOptions': {
-            'pageTitle': "Result of '{}'".format(resource)
-        },
+        'siteOptions': {'pageTitle': "Result of '{}'".format(resource)},
         'data': {
             'type': resource_type,
             'resource': resource,
-            'whois_raw': ''
-        }
+            'whois_raw': whois_raw.decode("utf-8").split('\n'),
+        },
     }

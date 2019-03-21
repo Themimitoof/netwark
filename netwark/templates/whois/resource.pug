@@ -29,6 +29,11 @@ block content
                                                 td
                                                     i= data['resource']
 
+                                            tr
+                                                td Reverse DNS
+                                                td
+                                                    i gnagna.dns.com
+
                                         if data['type'] == 'ip' or data['type'] == 'asn'
                                             tr
                                                 td ASN
@@ -74,8 +79,9 @@ block content
                                     p zone
 
                             .tabs-block#raw
-                                code=data['whois_raw']
-
+                                .whois-block
+                                    each line in data['whois_raw']
+                                        p= line
 
 block append javascript
     script.
