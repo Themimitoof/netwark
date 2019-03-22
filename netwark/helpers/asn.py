@@ -81,29 +81,35 @@ def get_infos(whois: list) -> dict:
         },
     }
 
-    # Detect RIR
-
-    for line in whois:
-        for el in objects.keys():
-            rir = el if el in line else None
-            continue
-
-        if rir:
-            continue
-
     data = dict()
 
-    import pdb; pdb.set_trace()
+    # Detect RIR
+    for line in whois:
+        if line == '':
+            continue
+
+        for el in objects.keys():
+            rir = el if el in line else None
+
+            if rir:
+                data['rir'] = rir
+                break
+
+        if rir:
+            break
 
     # Get other informations
     for line in whois:
-        if objects[rir]['as'] in line:
-            data['asn'] = line
-        elif objects[rir]['name'] in line:
-            data['name'] = line
-        elif objects[rir]['org'] in line:
-            data['org'] = line
+        if line == '':
+            continue
 
-    data['rir'] = rir
+        if objects[rir]['as'] in line:
+            data['asn'] = re.sub(r'\S+:\s+', '', line)
+            if not re.match(r'AS', data['asn'], re.IGNORECASE):
+                data['asn'] = 'AS' + data['asn']
+        elif objects[rir]['name'] in line:
+            data['name'] = re.sub(r'\S+:\s+', '', line)
+        elif objects[rir]['org'] in line:
+            data['org'] = re.sub(r'\S+:\s+', '', line)
 
     return data

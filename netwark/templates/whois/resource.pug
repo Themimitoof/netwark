@@ -30,11 +30,19 @@ block content
                                                     i= data['resource']
 
                                             tr
+                                                td Type
+                                                if data['ip_type']['public']
+                                                    td public (#{data['ip_type']['type']})
+                                                else
+                                                    td= data['ip_type']['type']
+
+
+                                            tr
                                                 td Reverse DNS
                                                 td
                                                     i= data['reverse_dns']
 
-                                        if data['type'] == 'ip' or data['type'] == 'asn'
+                                        if 'asn' in data
                                             tr
                                                 td ASN
                                                 td
@@ -42,17 +50,25 @@ block content
                                                         if data['type'] == 'ip'
                                                             a(href="/whois/AS#{data['asn'].autonomous_system_number}") AS#{data['asn'].autonomous_system_number} (#{data['asn'].autonomous_system_organization})
                                                         else
-                                                            | !{data['resource']} (ORGNAME)
+                                                            | #{data['asn']}
 
+                                        if 'as_name' in data
+                                            tr
+                                                td AS name
+                                                td
+                                                    i= data['as_name']
+
+                                        if 'organization' in data
                                             tr
                                                 td Organization
                                                 td
-                                                    i _Organization_
+                                                    i= data['organization']
 
+                                        if 'location' in data
                                             tr
                                                 td Location
                                                 td
-                                                    i X.XXXXXXX, X.XXXXXX
+                                                    i #{data['location'].location.latitude}, #{data['location'].location.longitude}
 
                                         if data['type'] == 'domain'
                                             tr
@@ -62,15 +78,16 @@ block content
 
                     .siimple-grid-col.siimple-grid-col--7
                         .siimple-tabs.siimple-tabs--boxed#whois-tabs(tabs-control="whois-tabs-control")
-                            if data['type'] == 'ip' or data['type'] == 'asn'
+                            if 'location' in data
                                 .siimple-tabs-item.siimple-tabs-item--selected(tab-block="geo") Geographic informations
 
                             if data['type'] == 'domain'
                                 .siimple-tabs-item.siimple-tabs-item--selected(tab-block="zone") Zone informations
+
                             .siimple-tabs-item(tab-block="raw") Raw WHOIS
 
                         .tabs-controls#whois-tabs-control
-                            if data['type'] == 'ip' or data['type'] == 'asn'
+                            if 'location' in data
                                 .tabs-block#geo
                                     p map
 
@@ -80,8 +97,11 @@ block content
 
                             .tabs-block#raw
                                 .whois-block
-                                    each line in data['whois_raw']
-                                        p= line
+                                    if data['whois_raw'] is None
+                                        p Nothing from WHOIS server
+                                    else
+                                        each line in data['whois_raw']
+                                            p= line
 
 block append javascript
     script.

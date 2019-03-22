@@ -46,21 +46,27 @@ def whois_resource_view(request: Request):
         'resource': resource,
     }
 
-
     # Retrieve informations specific to the resource
     if resource_type == 'ip':
+        ip_type = ip.ip_type(resource)
+        data['ip_type'] = ip_type
         data['whois_raw'] = ip.get_whois(resource)
-        data['city'] = request.geoip_city(resource)
-        data['asn'] = request.geoip_asn(resource)
 
-        log.critical('city: %r', data['city'])
+        if ip_type['public']:
+            data['location'] = request.geoip_city(resource)
+            data['asn'] = request.geoip_asn(resource)
 
         # Retrieve PTR record
         ptr = ip.get_ptr(resource)
-        data['reverse_dns'] = ptr.decode('utf-8')
+        data['reverse_dns'] = ptr if ptr != '' else None
     elif resource_type == 'asn':
         data['whois_raw'] = asn.get_whois(resource)
 
+        infos = asn.get_infos(data['whois_raw'])
+        data['rir'] = infos['rir']
+        data['asn'] = infos['asn']
+        data['as_name'] = infos['name']
+        data['organization'] = infos['org']
     return {
         'siteOptions': {'pageTitle': "Result of '{}'".format(resource)},
         'data': data,
