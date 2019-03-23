@@ -40,3 +40,49 @@ function tabs(root_selector) {
         });
     }
 }
+
+/**
+ *
+ * @param {String} resource
+ */
+function valid_whois_resource(resource) {
+    var asn_regex = /^AS\d{1,10}$/i;
+    var ip_regex = /^((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$))$/;
+    var domain_regex = "";
+
+    if(resource.match(asn_regex) || resource.match(ip_regex)) return true;
+    else return false;
+}
+
+
+/**
+ * WHOIS search box
+ */
+if(document.querySelector(".whois-search-box") != null) {
+    var form = document.querySelector(".whois-search-box form");
+    var search = document.querySelector(".whois-search-box form input#whois-search-input");
+    var button = document.querySelector(".whois-search-box form button#whois-search-button");
+
+    // Add an event to search input
+    search.addEventListener("input", () => {
+        button.firstChild.textContent = "Search " + search.value;
+
+        // Check if the resource is valid
+        if(valid_whois_resource(search.value)) button.classList.remove('.siimple-btn--disabled');
+        else button.classList.remove('.siimple-btn--disabled');
+    });
+
+
+    // Add an event to rewrite the action URI on submit
+    form.addEventListener("submit", e => {
+        e.preventDefault();
+
+        if(valid_whois_resource(search.value)) {
+            form.action = "/whois/" + search.value;
+            form.submit();
+        } else {
+            // TODO: Show a error on the front.
+            console.error("Ressource not valid.");
+        }
+    })
+}

@@ -7,7 +7,7 @@ block content
         .siimple-grid
             .siimple-grid-row
 
-                    .siimple-grid-col.siimple-grid-col--5
+                    .siimple-grid-col.siimple-grid-col--5.siimple-grid-col--md-12
                         .siimple-card
                             .siimple-card-header
                                 if data['type'] == 'ip'
@@ -76,7 +76,7 @@ block content
                                                 td
                                                     i _Organization_
 
-                    .siimple-grid-col.siimple-grid-col--7
+                    .siimple-grid-col.siimple-grid-col--7.siimple-grid-col--md-12
                         .siimple-tabs.siimple-tabs--boxed#whois-tabs(tabs-control="whois-tabs-control")
                             if 'location' in data
                                 .siimple-tabs-item.siimple-tabs-item--selected(tab-block="geo") Geographic informations

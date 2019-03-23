@@ -3,3 +3,11 @@
     margin-left: auto;
     margin-right: auto;
 }
+
+@media(max-width: 1170px) {
+    .container { width: 870px;}
+}
+
+@media(max-width: 910px) {
+    .container { width: 90%;}
+}

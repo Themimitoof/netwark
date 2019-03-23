@@ -3,3 +3,9 @@ extends ../layout/main
 block content
     .container
         h1 WHOIS
+
+        .whois-search-box
+            h2 Type an IP address, domain or a AS number to get their informations
+            form.siimple-form
+                input.siimple-input.siimple-input--fluid#whois-search-input(type="text", name="resource" maxlength="255" placeholder="Example: toto.net, 1.1.1.1, AS174" required="required")
+                button.siimple-btn.siimple-btn--primary.siimple-btn--disabled#whois-search-button Search
