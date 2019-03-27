@@ -1,12 +1,11 @@
 extends ../layout/main
 
 block content
-    .container
+    .container#whois-resource-page
         h1= siteOptions['pageTitle']
 
         .siimple-grid
             .siimple-grid-row
-
                     .siimple-grid-col.siimple-grid-col--5.siimple-grid-col--md-12
                         .siimple-card
                             .siimple-card-header
@@ -89,7 +88,7 @@ block content
                         .tabs-controls#whois-tabs-control
                             if 'location' in data
                                 .tabs-block#geo
-                                    p map
+                                    .map#geo-map(style="height:400px")
 
                             if data['type'] == 'domain'
                                 .tabs-block#zone
@@ -102,7 +101,3 @@ block content
                                     else
                                         each line in data['whois_raw']
                                             p= line
-
-block append javascript
-    script.
-        tabs("#whois-tabs")

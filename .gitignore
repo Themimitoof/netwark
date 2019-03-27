@@ -26,3 +26,5 @@ venv*
 pip-wheel-metadata
 node_modules/
 dist/
+maxmind_db/
+.mapbox-token

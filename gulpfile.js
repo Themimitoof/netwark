@@ -1,8 +1,12 @@
-const gulp = require('gulp'),
+const fs = require('fs'),
+    gulp = require('gulp'),
     sass = require('gulp-sass'),
     rename = require('gulp-rename'),
-    minify = require('gulp-minify'),
-    concat = require('gulp-concat');
+    terser = require('gulp-terser'),
+    replace = require('gulp-replace'),
+    browserify = require('browserify'),
+    buffer = require('vinyl-buffer'),
+    source = require('vinyl-source-stream');
 
 /**
  * CSS Tasks
@@ -25,9 +29,18 @@ gulp.task('css:watch', () => {
  * JS Tasks
  */
 gulp.task('js', () => {
-    return gulp.src(['./assets/js/*.js'])
-        .pipe(concat('app.js'))
-        .pipe(minify())
+    // Get Mapbox access token
+    var token = fs.readFileSync(__dirname + '/.mapbox-token', 'utf-8', 'r').toString().replace('\n', '');
+    var b = browserify({
+        entries: './assets/js/app.js',
+    });
+
+    // Task process
+    return b.bundle()
+        .pipe(source('app.js'))
+        .pipe(replace('replaced-mapbox-access-token', token))
+        .pipe(buffer())
+        .pipe(terser())
         .pipe(gulp.dest('./dist/js/'));
 });
 
