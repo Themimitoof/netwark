@@ -2,6 +2,10 @@ var leaflet = require('leaflet'),
     tabs = require('./components/tabs'),
     validators = require('./components/validators');
 
+// Overide leaflet icon path
+leaflet.Icon.Default({
+    imagePath: '/static/img/leaflet'
+});
 
 /**
  * WHOIS search box
@@ -36,17 +40,24 @@ if(document.querySelector(".whois-search-box") != null) {
 }
 
 if(document.querySelector("#whois-resource-page") != null) {
-    tabs("#whois-tabs");
+    tabs("#whois-tabs"); // Setup a tabs
 
+    // Setup the map if is available
     if(document.querySelector("#geo") != null) {
-        var map = spawn_leaflet("geo-map");
+        var map = spawn_leaflet("geo-map", resource_pos);
+        leaflet.marker(resource_pos).addTo(map); // Add marker
     }
 }
 
+
 // Generate leaflet if available
-function spawn_leaflet(selector) {
-    console.log('hey yo!')
-    var map = leaflet.map(selector).setView([51.505, -0.09], 13);
+/**
+ *
+ * @param {*} selector
+ * @param {*} setpos
+ */
+function spawn_leaflet(selector, setpos) {
+    var map = leaflet.map(selector).setView(setpos, 9);
 
     leaflet.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',

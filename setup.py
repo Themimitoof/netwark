@@ -19,6 +19,8 @@ requires = [
     'pyramid_retry',
     'zope.sqlalchemy',
     'celery',
+    'geoip2',
+    'idna'
 ]
 
 dev_require = [
@@ -26,6 +28,8 @@ dev_require = [
     'waitress',
     'pyramid_debugtoolbar',
     'pycodestyle',
+    'sphinx',
+    'sphinc-rtd-theme',
     'black',
 ]
 
