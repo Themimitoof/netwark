@@ -102,7 +102,7 @@ block content
                                         each line in data['whois_raw']
                                             p= line
 
-if 'location' in data
-    block prepend javascript
+block prepend javascript
+    if 'location' in data
         script.
             var resource_pos = [ #{data['location'].location.latitude}, #{data['location'].location.longitude} ]

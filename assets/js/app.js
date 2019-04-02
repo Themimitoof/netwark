@@ -3,9 +3,7 @@ var leaflet = require('leaflet'),
     validators = require('./components/validators');
 
 // Overide leaflet icon path
-leaflet.Icon.Default({
-    imagePath: '/static/img/leaflet'
-});
+leaflet.Icon.Default.imagePath = '/static/img/leaflet/';
 
 /**
  * WHOIS search box

@@ -67,6 +67,7 @@ def whois_resource_view(request: Request):
         data['asn'] = infos['asn']
         data['as_name'] = infos['name']
         data['organization'] = infos['org']
+
     return {
         'siteOptions': {'pageTitle': "Result of '{}'".format(resource)},
         'data': data,
