@@ -2,12 +2,14 @@ import os
 import logging
 import re
 import subprocess
+import json
 from ipaddress import ip_address
 
 from pyramid.request import Request
-from pyramid.httpexceptions import HTTPBadRequest
+from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
 from pyramid.response import Response
+from pyramid.httpexceptions import HTTPBadRequest
 from geoip2.database import Reader as geoip_reader
 
 from sqlalchemy.exc import DBAPIError
@@ -20,7 +22,10 @@ log = logging.getLogger(__name__)
 
 @view_config(route_name="whois_main", renderer="../templates/whois/home.pug")
 def whois_main_view(request: Request):
-    return {'siteOptions': {'pageTitle': 'WHOIS'}, 'data': {}}
+    return {
+        'siteOptions': {'pageTitle': 'WHOIS', 'flash': request.flash},
+        'data': {},
+    }
 
 
 @view_config(
@@ -37,14 +42,14 @@ def whois_resource_view(request: Request):
     elif ip.is_ip(resource):
         resource_type = 'ip'
     else:
-        # TODO: Return to the previous page with "flash" error.
-        return HTTPBadRequest()
+        request.session['flash'] = [
+            {'type': 'not_resource', 'severity': 'error', 'extra': resource}
+        ]
+
+        return HTTPFound(location=request.route_url('whois_main'))
 
     # Initialize data for the view
-    data = {
-        'type': resource_type,
-        'resource': resource,
-    }
+    data = {'type': resource_type, 'resource': resource}
 
     # Retrieve informations specific to the resource
     if resource_type == 'ip':

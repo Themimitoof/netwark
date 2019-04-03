@@ -5,6 +5,17 @@ block content
         h1 WHOIS
 
         .whois-search-box
+            //- Flash messages management
+            each flash in siteOptions['flash']
+                if flash['type'] == 'not_resource'
+                    message = '<b>'+ flash['extra'] + '</b> is not a valid resource. Please use a valid IP address, AS number or a valid IDN.'
+                    classes = 'siimple-tip--error siimple-tip--exclamation'
+                else
+                    message = 'An error is happened on processing the request'
+                    classes = 'siimple-tip--warning siimple-tip--exclamation'
+
+                div(class="siimple-tip "+classes)!= message
+
             h2 Type an IP address, domain or a AS number to get their informations
             form.siimple-form
                 input.siimple-input.siimple-input--fluid#whois-search-input(type="text", name="resource" maxlength="255" placeholder="Example: toto.net, 1.1.1.1, AS174" required="required")
