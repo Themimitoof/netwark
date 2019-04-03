@@ -51,6 +51,14 @@ def get_tm_session(session_factory, transaction_manager):
     return dbsession
 
 
+def DBSession(settings):
+    engine = get_engine(settings)
+    session_factory = get_session_factory(engine)
+    dbsession = session_factory()
+
+    return dbsession
+
+
 def includeme(config):
     """
     Initialize the model for a Pyramid app.

@@ -9,4 +9,4 @@ class OuiVendor(Base):
     id = None
     assignment = Column(Text, primary_key=True)
     orgname = Column(Text, nullable=False)
-    orgaddr = Column(Text, nullable=False)
+    orgaddr = Column(Text, nullable=True)

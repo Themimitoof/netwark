@@ -4,16 +4,15 @@ import sys
 import re
 
 import requests
-from pyramid.paster import bootstrap, setup_logging
+from pyramid.paster import bootstrap, setup_logging, get_appsettings
 from sqlalchemy.exc import OperationalError
 
-from netwark.models import OuiVendor
+from netwark.models import OuiVendor, DBSession
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('netwark_update_oui_vendor_table')
 oui_url = 'http://standards-oui.ieee.org/oui/oui.csv'
 
 
-# Downloadable
 def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -34,8 +33,11 @@ def retrieve_csv_file() -> list:
     # If everything is OK
     if req.status_code == 200:
         text = req.text
-        exploded = text.split('\r\n')
+        exploded = text.split(' \r\n')
         output = []
+
+        exploded.pop(0)  # Remove the header
+        exploded.pop(-1)  # Remove the last empty line
 
         for line in exploded:
             pattern = re.compile(r"((?:[^,\"']|\"[^\"]*\"|'[^']*')+)")
@@ -49,28 +51,38 @@ def retrieve_csv_file() -> list:
             for i, item in enumerate(line):
                 line[i] = re.sub(r"(^\")|(\"$)", '', item)
 
+            if len(line) == 2:
+                line.append(None)
+
             output.append(line)
 
-        # Remove the header of the file and the last empty line
-        output.pop(0).pop(-1)
         return output
     else:
         raise requests.HTTPError()
 
 
-def update_database(data: list):
+def update_database(data: list, settings):
     """
     Updates the OUI vendor table with the new data.
     """
-    pass
+    session = DBSession(settings)
+
+    for line in data:
+        log.info("Merge %s - %s (%s)", line[0], line[1], line[2])
+        oui = OuiVendor(assignment=line[0], orgname=line[1], orgaddr=line[2])
+        session.merge(oui)
+
+    session.commit()
 
 
 def main(argv=sys.argv):
     args = parse_args(argv)
     setup_logging(args.config_uri)
+    app_settings = get_appsettings(args.config_uri)
 
     data = retrieve_csv_file()
-    update_database(data)
+    update_database(data, app_settings)
+    log.info('Update done.')
 
 
 if __name__ == "__main__":
