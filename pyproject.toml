@@ -19,6 +19,8 @@ celery = "^4.2"
 "zope.sqlalchemy" = "^1.1"
 geoip2 = "^2.9"
 idna = "^2.8"
+cornice = "^3.5"
+colander = "^1.7"
 
 [tool.poetry.dev-dependencies]
 plaster_pastedeploy = "^0.6.0"

@@ -9,10 +9,12 @@ def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
     with Configurator(settings=settings) as config:
+        config.include('cornice')
         config.include('.models')
         config.include('pypugjs.ext.pyramid')
         config.include('.geoip')
         config.include('.routes')
+        config.include('.api.v1')
 
         # Configure session factory
         session_factory = SignedCookieSessionFactory(
@@ -31,6 +33,6 @@ def main(global_config, **settings):
         # Execute flash_messages method when a new request happen
         config.add_subscriber(flash_messages, NewRequest)
 
-        config.scan()
+        # config.scan()
 
     return config.make_wsgi_app()

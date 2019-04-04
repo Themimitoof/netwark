@@ -15,6 +15,5 @@ def includeme(config):
     config.add_route('whois_main', '/whois')
     config.add_route('whois_resource', '/whois/{resource}')
 
-    # MAC OUI routes
+    # MAC OUI routes
     config.add_route('mac_oui', '/mac-oui')
-    config.add_route('api_mac_oui', '/api/mac-oui')

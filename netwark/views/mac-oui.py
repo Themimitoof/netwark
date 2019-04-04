@@ -14,7 +14,3 @@ def mac_oui_view(request):
         },
         'data': {}
     }
-
-@view_config(route_name="api_mac_oui", renderer="json")
-def api_mac_oui_view(request):
-    return {}
