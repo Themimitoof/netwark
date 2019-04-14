@@ -33,6 +33,7 @@ def main(global_config, **settings):
         # Execute flash_messages method when a new request happen
         config.add_subscriber(flash_messages, NewRequest)
 
-        # config.scan()
+        config.scan('.views')
+        config.scan('netwark.helpers.errors')
 
     return config.make_wsgi_app()
