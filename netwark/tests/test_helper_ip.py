@@ -1,5 +1,7 @@
+import pytest
 import logging
 import unittest
+from unittest import mock
 
 from ..helpers import ip
 
@@ -32,10 +34,36 @@ class TestHelperIp(unittest.TestCase):
         self.assertFalse(result)
 
     def test_ip_type(self):
-        pass
+        result = ip.ip_type('1.1.1.1')
+        self.assertEqual('global', result['type'])
+        self.assertEqual(4, result['version'])
+        self.assertTrue(result['public'])
+
+        result = ip.ip_type('2003::4')
+        self.assertEqual('global', result['type'])
+        self.assertEqual(6, result['version'])
+        self.assertTrue(result['public'])
+
+        result = ip.ip_type('10.10.0.0')
+        self.assertEqual('private', result['type'])
+        self.assertEqual(4, result['version'])
+        self.assertFalse(result['public'])
+
+        with pytest.raises(Exception):
+            ip.ip_type('gno')
 
     def test_get_ptr(self):
-        pass
+        with mock.patch(
+            'netwark.helpers.ip.get_ptr', return_value="one.one.one.one."
+        ):
+            result = ip.get_ptr('1.1.1.1')
+        self.assertEqual('one.one.one.one.', result)
 
     def test_get_whois(self):
-        pass
+        whois = []
+
+        with mock.patch(
+            'netwark.helpers.ip.get_ptr', return_value="one.one.one.one."
+        ):
+            result = ip.get_ptr('1.1.1.1')
+        self.assertEqual('one.one.one.one.', result)

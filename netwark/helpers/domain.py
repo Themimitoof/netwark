@@ -29,4 +29,4 @@ def to_idna(fqdn: str) -> str:
     """
     Converts the FQDN to IDNA
     """
-    return fqdn.encode('idna')
+    return fqdn.encode('idna').decode('utf-8')
