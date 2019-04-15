@@ -45,10 +45,36 @@ def http_exception(exc, request: Request):
 
         response = Response(json.dumps(error))
         response.content_type = str('application/json')
-        response.status_int = 404
+        response.status_int = exc.code
         return response
     else:
         # render html
-        response = render_to_response('netwark:templates/404.pug', {})
-        response.status_int = 404
+        response = render_to_response(exceptions.get(exc.code)[0], {})
+        response.status_int = exc.code
+        return response
+
+
+@view_config(context=HTTPBadRequest)
+def http_bad_request(exc, request: Request):
+    route = request.environ['PATH_INFO']
+
+    if route.startswith('/api') or request.content_type == str(
+        'application/json'
+    ):
+        # render json
+        error = {
+            'code': exc.code,
+            'cause': 'The request was not forged correctly. '
+                     'Please see errors to fix your errors.',
+            'errors': request.errors
+        }
+
+        response = Response(json.dumps(error))
+        response.content_type = str('application/json')
+        response.status_int = exc.code
+        return response
+    else:
+        # render html
+        response = render_to_response('netwark:templates/400.pug', {})
+        response.status_int = exc.code
         return response
