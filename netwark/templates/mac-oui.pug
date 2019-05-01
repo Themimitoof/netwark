@@ -1,5 +1,44 @@
 extends layout/main
 
 block content
-    .container
+     .container
         h1 MAC OUI lookup
+
+        .search-box
+            .siimple-tabs.siimple-tabs--boxed#macoui-tabs(tabs-control="macoui-tabs-control")
+                .siimple-tabs-item.siimple-tabs-item--selected(tab-block="find") Find
+                .siimple-tabs-item(tab-block="precise") Precise search
+
+            .tabs-controls#macoui-tabs-control
+                .tabs-block.siimple--text-left#find
+                    form#find-form(action="/api/v1/mac-oui" method="GET")
+                        .siimple-form-detail.siimple--text-center This method allow you to return a list of assignments by filtering with the informations you enter.
+
+                        .siimple-form-field-label Assignment
+                        input.siimple-input.siimple-input--fluid#mac-oui-search-input(type="text", name="assignment" maxlength="255" placeholder="Example: 112233, 11:22:33, 11-22-33, 11:22:33:44:55:66")
+
+                        .siimple-form-field-label Organization name
+                        input.siimple-input.siimple-input--fluid#mac-oui-search-input(type="text", name="orgname" maxlength="255" placeholder="Example: Evil corp")
+
+                        .siimple--display-block.siimple--text-center
+                            button.siimple-btn.siimple-btn--primary.siimple-btn--disabled Search
+
+                .tabs-block.siimple--text-left#precise
+                    form#precise-form(action="/api/v1/mac-oui" method="GET")
+                        .siimple-form-detail.siimple--text-center This method return the informations about the MAC address/assignment or the organization you entered.
+
+                        .siimple-form-field-label Assignment or organization name
+                        input.siimple-input.siimple-input--fluid#mac-oui-search-input(type="text", name="resource" maxlength="255" placeholder="Example: 112233, 11:22:33, 11-22-33, 11:22:33:44:55:66, Evil Corp" required="required")
+
+                        .siimple--display-block.siimple--text-center
+                            button.siimple-btn.siimple-btn--primary.siimple-btn--disabled Search
+
+            .mac-oui-return
+                .siimple-card.siimple--text-left
+                    .siimple-card-header Search results
+                    .siimple-card-body
+                        .siimple-tip.siimple-tip--primary
+                            ul.no-style
+                                li Assignment: AAAAAA
+                                li Organization: Gna gna corp
+                                li Organization address: gna, France

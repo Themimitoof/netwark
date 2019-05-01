@@ -1,0 +1,9 @@
+.mac-oui-return {
+    height: 0;
+    overflow: hidden;
+    transition: .3s height;
+}
+
+.mac-oui-return.active {
+    height: 100%;
+}

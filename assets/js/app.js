@@ -47,6 +47,93 @@ if(document.querySelector("#whois-resource-page") != null) {
     }
 }
 
+if(document.querySelector(".search-box") != null) {
+    tabs("#macoui-tabs"); // Setup a tabs
+
+    document.querySelectorAll("form").forEach(form => {
+        var inputs = form.getElementsByTagName("input");
+
+
+        form.addEventListener("submit", e => {
+            e.preventDefault();
+
+            console.log("Hello buddy")
+
+            var url = new URL(location.origin + "/api/v1/mac-oui");
+
+            if(form.id == "find-form") {
+                var params = [];
+
+                inputs.forEach(el => {
+                    if(el.value != "")
+                        params.push[el.getAttribute("name"), el.value];
+                });
+
+                url.search = new URLSearchParams(params);
+            }
+
+            fetch(url).then(resp => {
+                resp.json().then(json => {
+                    var result_div = document.querySelector(".mac-oui-return");
+                    var result_body = document.querySelector(".mac-oui-return .siimple-card-body");
+
+                    // Hide the result div and cleanup the actual content
+                    result_div.classList.remove("active");
+                    result_body.innerHTML = "";
+
+                    if(Array.isArray(json)) {
+                        json.forEach(el => {
+                            var tip = document.createElement("div");
+                            tip.classList.add(...["siimple-tip", "siimple-tip--primary"]);
+                            var list = document.createElement("ul");
+                            list.classList.add("no-style");
+
+                            var node = document.createElement("li");
+                            node.innerText = `Assignment: ${el.assignment}`;
+                            list.appendChild(node);
+
+                            node = document.createElement("li");
+                            node.innerText = `Organization: ${el.orgname}`;
+                            list.appendChild(node);
+
+                            node = document.createElement("li");
+                            node.innerText = `Organization address: ${el.orgaddr}`;
+                            list.appendChild(node);
+
+                            tip.appendChild(list);
+                            result_body.appendChild(tip);
+                        });
+                    } else {
+                        var tip = document.createElement("div");
+                        tip.classList.add(...["siimple-tip", "siimple-tip--primary"]);
+                        var list = document.createElement("ul");
+                        list.classList.add("no-style");
+
+                        var node = document.createElement("li");
+                        node.innerText = `Assignment: ${el.assignment}`;
+                        list.appendChild(node);
+
+                        node = document.createElement("li");
+                        node.innerText = `Organization: ${el.orgname}`;
+                        list.appendChild(node);
+
+                        node = document.createElement("li");
+                        node.innerText = `Organization address: ${el.orgaddr}`;
+                        list.appendChild(node);
+
+                        tip.appendChild(list);
+                        result_body.appendChild(tip);
+                    }
+
+                    // Show the result div with the new results
+                    result_div.classList.add("active");
+                });
+
+            }).catch(err => console.error(err));
+        });
+    });
+}
+
 
 // Generate leaflet if available
 /**
