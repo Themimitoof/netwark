@@ -10,3 +10,10 @@ class OuiVendor(Base):
     assignment = Column(Text, primary_key=True)
     orgname = Column(Text, nullable=False)
     orgaddr = Column(Text, nullable=True)
+
+    def to_dict(self):
+        return {
+            'assignment': self.assignment,
+            'orgname': self.orgname,
+            'orgaddr': self.orgaddr
+        }
