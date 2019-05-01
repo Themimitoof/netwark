@@ -9,11 +9,11 @@ def includeme(config):
     config.add_route('operation_info', '/operation/{uuid}')
 
     # IP Calc routes
-    config.add_route('ipcalc', '/ipcalc')
+    config.add_route('ipcalc', '/tools/ipcalc')
 
     # WHOIS routes
-    config.add_route('whois_main', '/whois')
-    config.add_route('whois_resource', '/whois/{resource}')
+    config.add_route('whois_main', '/tools/whois')
+    config.add_route('whois_resource', '/tools/whois/{resource}')
 
     # MAC OUI routes
-    config.add_route('mac_oui', '/mac-oui')
+    config.add_route('mac_oui', '/tools/mac-oui')
