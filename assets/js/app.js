@@ -53,83 +53,113 @@ if(document.querySelector(".search-box") != null) {
     document.querySelectorAll("form").forEach(form => {
         var inputs = form.getElementsByTagName("input");
 
-
+        // Add event to submit trigger
         form.addEventListener("submit", e => {
             e.preventDefault();
 
-            console.log("Hello buddy")
-
             var url = new URL(location.origin + "/api/v1/mac-oui");
 
+            // Forge a URI with params if the form is "find-form" or put the resource in
+            // PATHINFO if the form is "precise-form"
             if(form.id == "find-form") {
                 var params = [];
 
-                inputs.forEach(el => {
+                for(var i=0; i < inputs.length; i++) {
+                    var el = inputs[i];
+
                     if(el.value != "")
-                        params.push[el.getAttribute("name"), el.value];
-                });
+                        params.push([el.getAttribute("name"), el.value]);
+                }
 
                 url.search = new URLSearchParams(params);
+            } else if(form.id == "precise-form") {
+                url.pathname = `${url.pathname}/${encodeURIComponent(inputs[0].value)}`;
             }
 
             fetch(url).then(resp => {
+                var result_div = document.querySelector(".mac-oui-return");
+                var result_body = document.querySelector(".mac-oui-return .siimple-card-body");
+
+                // Show if the result div is not visible and add a loader
+                result_div.classList.add("active");
+                result_body.innerHTML = `<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>`;
+
                 resp.json().then(json => {
-                    var result_div = document.querySelector(".mac-oui-return");
-                    var result_body = document.querySelector(".mac-oui-return .siimple-card-body");
-
-                    // Hide the result div and cleanup the actual content
-                    result_div.classList.remove("active");
-                    result_body.innerHTML = "";
-
                     if(Array.isArray(json)) {
-                        json.forEach(el => {
+                        if(json.length == 0) {
                             var tip = document.createElement("div");
-                            tip.classList.add(...["siimple-tip", "siimple-tip--primary"]);
+                            tip.classList.add(...["siimple-tip", "siimple-tip--warning"]);
+                            tip.textContent = `No entry found in the database.`;
+                            result_body.appendChild(tip);
+                        } else {
+                            json.forEach(el => {
+                                var tip = document.createElement("div");
+                                tip.classList.add(...["siimple-tip", "siimple-tip--primary"]);
+                                var list = document.createElement("ul");
+                                list.classList.add("no-style");
+
+                                var node = document.createElement("li");
+                                node.innerText = `Assignment: ${el.assignment}`;
+                                list.appendChild(node);
+
+                                node = document.createElement("li");
+                                node.innerText = `Organization: ${el.orgname}`;
+                                list.appendChild(node);
+
+                                node = document.createElement("li");
+                                node.innerText = `Organization address: ${el.orgaddr}`;
+                                list.appendChild(node);
+
+                                tip.appendChild(list);
+                                result_body.appendChild(tip);
+                            });
+                        }
+                    } else {
+                        var tip = document.createElement("div");
+
+                        if(Object.keys(json).length == 0) {
+                            tip.classList.add(...["siimple-tip", "siimple-tip--warning"]);
+                            tip.textContent = `No entry found in the database.`;
+                        } else {
                             var list = document.createElement("ul");
                             list.classList.add("no-style");
 
                             var node = document.createElement("li");
-                            node.innerText = `Assignment: ${el.assignment}`;
+                            node.innerText = `Assignment: ${json.assignment}`;
                             list.appendChild(node);
 
                             node = document.createElement("li");
-                            node.innerText = `Organization: ${el.orgname}`;
+                            node.innerText = `Organization: ${json.orgname}`;
                             list.appendChild(node);
 
                             node = document.createElement("li");
-                            node.innerText = `Organization address: ${el.orgaddr}`;
+                            node.innerText = `Organization address: ${json.orgaddr}`;
                             list.appendChild(node);
 
                             tip.appendChild(list);
-                            result_body.appendChild(tip);
-                        });
-                    } else {
-                        var tip = document.createElement("div");
-                        tip.classList.add(...["siimple-tip", "siimple-tip--primary"]);
-                        var list = document.createElement("ul");
-                        list.classList.add("no-style");
+                        }
 
-                        var node = document.createElement("li");
-                        node.innerText = `Assignment: ${el.assignment}`;
-                        list.appendChild(node);
-
-                        node = document.createElement("li");
-                        node.innerText = `Organization: ${el.orgname}`;
-                        list.appendChild(node);
-
-                        node = document.createElement("li");
-                        node.innerText = `Organization address: ${el.orgaddr}`;
-                        list.appendChild(node);
-
-                        tip.appendChild(list);
                         result_body.appendChild(tip);
                     }
 
                     // Show the result div with the new results
-                    result_div.classList.add("active");
+                    document.querySelector(".lds-ellipsis").remove();
                 });
 
-            }).catch(err => console.error(err));
+            }).catch(err => {
+                console.error(err);
+
+                var result_div = document.querySelector(".mac-oui-return");
+                var result_body = document.querySelector(".mac-oui-return .siimple-card-body");
+                result_body.innerHTML = "";
+
+                var tip = document.createElement("div");
+                tip.classList.add(...["siimple-tip", "siimple-tip--error"]);
+                tip.textContent = "Unable to retrieve the result of the request. Something go wrong with the API..."
+                result_body.append(tip);
+
+                result_div.classList.add("active");
+            });
         });
     });
 }
