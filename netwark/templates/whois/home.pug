@@ -4,7 +4,7 @@ block content
     .container
         h1 WHOIS
 
-        .search-box
+        .search-box#whois-search-box
             //- Flash messages management
             each flash in siteOptions['flash']
                 if flash['type'] == 'not_resource'

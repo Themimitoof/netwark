@@ -8,10 +8,10 @@ leaflet.Icon.Default.imagePath = '/static/img/leaflet/';
 /**
  * WHOIS search box
  */
-if(document.querySelector(".whois-search-box") != null) {
-    var form = document.querySelector(".whois-search-box form");
-    var search = document.querySelector(".whois-search-box form input#whois-search-input");
-    var button = document.querySelector(".whois-search-box form button#whois-search-button");
+if(document.querySelector(".search-box#whois-search-box") != null) {
+    var form = document.querySelector(".search-box form");
+    var search = document.querySelector(".search-box form input#whois-search-input");
+    var button = document.querySelector(".search-box form button#whois-search-button");
 
     // Add an event to search input
     search.addEventListener("input", () => {
@@ -28,8 +28,7 @@ if(document.querySelector(".whois-search-box") != null) {
         e.preventDefault();
 
         if(validators.valid_whois_resource(search.value)) {
-            form.action = "/whois/" + search.value;
-            form.submit();
+            window.location.href = "/tools/whois/" + search.value;
         } else {
             // TODO: Show a error on the front.
             console.error("Ressource not valid.");
@@ -47,7 +46,7 @@ if(document.querySelector("#whois-resource-page") != null) {
     }
 }
 
-if(document.querySelector(".search-box") != null) {
+if(document.querySelector(".search-box#macoui-search-box") != null) {
     tabs("#macoui-tabs"); // Setup a tabs
 
     document.querySelectorAll("form").forEach(form => {
