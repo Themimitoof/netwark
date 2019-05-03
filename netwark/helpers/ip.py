@@ -104,3 +104,63 @@ def get_whois(resource: str) -> list:
             ).stdout.read()
 
             return whois.decode('utf-8').split('\n')
+
+
+def get_subnet_informations(resource):
+    """
+    Return all informations about the requested network.
+    """
+    ip_str, cidr = resource.split('/')
+    ip_version = ip_type(ip_str)['version']
+    cidr = int(cidr)
+
+    if ip_version == 6:
+        ip = ipaddress.IPv6Network(resource, strict=False)
+
+        output = {
+                'network': str(ip.network_address),
+                'cidr': cidr,
+                'usable_ips': ip.num_addresses - 1,
+                'first_ip': str(ip.network_address + 1),
+                'last_ip': '',
+            }
+
+        if cidr == 127:
+            output['usable_ips'] = 2
+        elif cidr == 128:
+            output['usable_ips'] = 1
+        else:
+            output['first_ip'] = str(ip.network_address + 1)
+            output['last_ip'] = str(ip.broadcast_address)
+
+        if cidr >= 127:
+            output.pop('first_ip')
+            output.pop('last_ip')
+            output.pop('broadcast')
+    else:  # IPv4
+        ip = ipaddress.IPv4Network(resource, strict=False)
+
+        output = {
+                'network': str(ip.network_address),
+                'netmask': str(ip.netmask),
+                'cidr': cidr,
+                'usable_ips': ip.num_addresses - 2,
+                'first_ip': '',
+                'last_ip': '',
+                'broadcast': str(ip.broadcast_address)
+            }
+
+        if cidr == 31:
+            output['usable_ips'] = 2
+        elif cidr == 32:
+            output['usable_ips'] = 1
+        else:
+            output['first_ip'] = str(ip.network_address + 1)
+            output['last_ip'] = str(ip.broadcast_address - 1)
+
+        if cidr > 30:
+            output.pop('first_ip')
+            output.pop('last_ip')
+            output.pop('broadcast')
+
+    return output
