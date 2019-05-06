@@ -2,4 +2,52 @@ extends layout/main
 
 block content
     .container
-        h1 IP Address calculator
+        h1 IP calculator
+
+        form#ipcalc-form(action="")
+            .ipcalc-form-field
+                .siimple-field
+                    label.siimple-field-label(for="") IP address/CIDR
+                    input.siimple-input.siimple-input--fluid.siimple-input--large(type="text")(type="text" name="resource" placeholder="10.0.0.0/24, 2001:8db:43::48")
+
+                #ipcalc-errors
+
+            .siimple-card.siimple--text-left
+                .siimple-card-header Results
+                .siimple-card-body#ipcalc-results
+                    .siimple-grid
+                        .siimple-grid-col.siimple-grid-col--6#network-addr
+                            .siimple-field
+                                label.siimple-field-label(for="") Network
+                                input.siimple-input.siimple-input--fluid.siimple-input--medium(readonly="yes")
+
+                        .siimple-grid-col.siimple-grid-col--6#cidr
+                            .siimple-field
+                                label.siimple-field-label(for="") CIDR
+                                input.siimple-input.siimple-input--fluid.siimple-input--medium(readonly="yes")
+
+                        .siimple-grid-col.siimple-grid-col--6#netmask-addr
+                            .siimple-field
+                                label.siimple-field-label(for="") Netmask
+                                input.siimple-input.siimple-input--fluid.siimple-input--medium(readonly="yes")
+
+                        .siimple-grid-col.siimple-grid-col--6#broadcast-addr
+                             .siimple-field
+                                label.siimple-field-label(for="") Broadcast
+                                input.siimple-input.siimple-input--fluid.siimple-input--medium(readonly="yes")
+
+                        .siimple-grid-col.siimple-grid-col--6#usable-ips
+                            .siimple-field
+                                label.siimple-field-label(for="") Usable ips
+                                input.siimple-input.siimple-input--fluid.siimple-input--medium(readonly="yes")
+
+                        .siimple-grid-col.siimple-grid-col--6#first-ip
+                            .siimple-field
+                                label.siimple-field-label(for="") First usable IP
+                                input.siimple-input.siimple-input--fluid.siimple-input--medium(readonly="yes")
+
+                        .siimple-grid-col.siimple-grid-col--6#last-ip
+                            .siimple-field
+                                label.siimple-field-label(for="") Last usable IP
+                                input.siimple-input.siimple-input--fluid.siimple-input--medium(readonly="yes")
+

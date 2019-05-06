@@ -46,6 +46,10 @@ if(document.querySelector("#whois-resource-page") != null) {
     }
 }
 
+
+/**
+ * Mac OUI Vendor page
+ */
 if(document.querySelector(".search-box#macoui-search-box") != null) {
     tabs("#macoui-tabs"); // Setup a tabs
 
@@ -163,6 +167,86 @@ if(document.querySelector(".search-box#macoui-search-box") != null) {
     });
 }
 
+
+/**
+ * IP Calc page
+ */
+if(document.querySelector("#ipcalc-form") != null) {
+    var input = document.querySelector("input[name=resource]");
+    var errors = document.querySelector("#ipcalc-errors");
+
+    input.addEventListener("input", (el) => {
+        if(input.value == "") input.classList.remove("siimple-input--danger");
+        else {
+            if(validators.validate_ipv4(input.value, true) || validators.validate_ipv6(input.value, true)) {
+                input.classList.remove("siimple-input--danger");
+                errors.innerHTML = "";
+
+                var url = new URL(`${location.origin}/api/v1/ip-calc/${input.value}`);
+                fetch(url).then(resp => {
+                    resp.json().then(json => {
+                        if(resp.status == 200) {
+                            console.log(json);
+
+
+                            // Fill netmask input for IPv4 with a CIDR < 31
+                            if(Object.keys(json).includes("netmask")) {
+                                document.querySelector("#netmask-addr").classList.remove("hidden");
+                                document.querySelector("#netmask-addr input").value = json.netmask;
+                            } else {
+                                document.querySelector("#netmask-addr").classList.add("hidden");
+                                document.querySelector("#netmask-addr input").value = "";
+                            }
+
+                            // Fill broadcast input for IPv4 with a CIDR < 31
+                            if(Object.keys(json).includes("broadcast")) {
+                                document.querySelector("#broadcast-addr").classList.remove("hidden");
+                                document.querySelector("#broadcast-addr input").value = json.broadcast;
+                            } else {
+                                document.querySelector("#broadcast-addr").classList.add("hidden");
+                                document.querySelector("#broadcast-addr input").value = "";
+                            }
+
+                            // Fill first_ip input for all subnets with more than 2 ips
+                            if(Object.keys(json).includes("first_ip")) {
+                                document.querySelector("#first-ip").classList.remove("hidden");
+                                document.querySelector("#first-ip input").value = json.first_ip;
+                            } else {
+                                document.querySelector("#first-ip").classList.add("hidden");
+                                document.querySelector("#first-ip input").value = "";
+                            }
+
+                            // Fill last_ip input for all subnets with more than 2 ips
+                            if(Object.keys(json).includes("last_ip")) {
+                                document.querySelector("#last-ip").classList.remove("hidden");
+                                document.querySelector("#last-ip input").value = json.last_ip;
+                            } else {
+                                document.querySelector("#last-ip").classList.add("hidden");
+                                document.querySelector("#last-ip input").value = "";
+                            }
+
+                            // Fill other inputs
+                            document.querySelector("#network-addr input").value = json.network;
+                            document.querySelector("#cidr input").value = json.cidr;
+                            document.querySelector("#usable-ips input").value = json.usable_ips;
+                        } else {
+                            input.classList.add("siimple-input--danger");
+
+                            json.errors.forEach(err => {
+                                var tip = document.createElement("div");
+                                tip.classList.add(...["siimple-tip", "siimple-tip--error"]);
+                                tip.textContent = err.description;
+                                errors.appendChild(tip);
+                            });
+                        }
+                    });
+                });
+            } else {
+                input.classList.add("siimple-input--danger");
+            }
+        }
+    });
+}
 
 // Generate leaflet if available
 /**
