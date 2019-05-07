@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  # Netwark web service
+  netwark:
+    build: .
+    restart: on-failure
+    ports:
+      - 127.0.0.1:6543:6543
+    volumes:
+      - ./dist:/var/opt/netwark/dist
+    depends_on:
+      - db
+      - rabbit
+    links:
+      - db:psql.netwark
+      - rabbit:rabbit.netwark
+
+  # PostgreSQL database
+  db:
+    image: postgres:11-alpine
+    restart: on-failure
+    environment:
+      POSTGRES_PASSWORD: ReallyBadPwd
+      POSTGRES_DB: netwark
+    volumes:
+      - ./docker/pgdata:/var/lib/postgresql/data
+
+  # RabbitMQ broker
+  rabbit:
+    image: rabbitmq:3.7-management-alpine
+    restart: on-failure
+    ports:
+      - 127.0.0.1:15672:15672

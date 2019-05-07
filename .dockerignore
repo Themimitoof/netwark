@@ -1,0 +1,11 @@
+.pytest_cache
+.vscode
+docker
+node_modules
+*.egg
+*.egg-info
+*.pyc
+pip-wheel-metadata
+*.sqlite
+*.db
+venv*
