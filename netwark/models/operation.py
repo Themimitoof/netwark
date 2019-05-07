@@ -1,17 +1,52 @@
-from sqlalchemy import Column, Integer, Text, TIMESTAMP, JSON, Enum
+from sqlalchemy import (
+    Column,
+    Integer,
+    Enum,
+    TIMESTAMP,
+    ARRAY,
+    ForeignKey,
+    String
+)
+from sqlalchemy.orm import relationship, backref, aliased
 from sqlalchemy.sql.functions import now
-from sqlalchemy.dialects.postgresql import UUID
 
 from .meta import Base
+from .types import UUID, JSON
+
+
+operation_status = Enum(
+    'waiting',
+    'progress',
+    'done',
+    'error',
+    'timeout',
+    name='en_operation_status',
+)
 
 
 class Operation(Base):
     __tablename__ = 'operation'
     id = Column(UUID(), primary_key=True)
-    destination = Column(Text, nullable=False)
     type = Column(
-        Enum('ping', 'mtr', 'whois', 'dig', name='operation_type_enm'),
-        nullable=False,
+        Enum('ping', 'mtr', name='en_operation_type'), nullable=False
     )
-    options = Column(JSON())
-    created_at = Column(TIMESTAMP, default=now())
+    destination = Column(String(), nullable=False)
+    payload = Column(JSON())
+    queues = Column(String(), default='netwark', nullable=False)
+    status = Column(operation_status, nullable=False)
+    created_at = Column(TIMESTAMP(False), nullable=False, default=now())
+    updated_at = Column(TIMESTAMP(False), nullable=False, default=now())
+
+
+class OperationResult(Base):
+    __tablename__ = 'operation_result'
+    id = Column(UUID(), primary_key=True)
+    operation_id = Column('operation', UUID(), ForeignKey('operation.id'))
+    worker = Column(String(), nullable=False)
+    queue = Column(String(), nullable=False)
+    status = Column(operation_status, nullable=False)
+    payload = Column(JSON(), nullable=False)
+    created_at = Column(TIMESTAMP(False), nullable=False, default=now())
+    updated_at = Column(TIMESTAMP(False), nullable=False, default=now())
+
+    operation = relationship(Operation, backref=backref('operation'))
