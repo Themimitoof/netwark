@@ -1,0 +1,25 @@
+# Contains Celery default configuration
+# See the documentation if you want add more options to Celery.
+# See: https://docs.celeryproject.org/en/latest/userguide/configuration.html
+# Note: Netwark uses Celery >= 4, lowercases settings can be used
+celeryconfig:
+  enable_utc: True
+  timezone: 'Europe/Paris'
+  broker_url: 'amqp://guest:guest@rabbit.netwark:5672/'
+  broker_heartbeat: 60
+  worker_disable_rate_limits: True
+  # worker_concurrency: 4 # If you want to limit the number of threads allocated to the backend
+  task_default_queue: 'netwark'
+  task_default_exchange: 'netwark'
+  accept_content:
+    - 'json'
+
+
+# Contains all queues the backend can see. If you are configuring the webserver,
+# enter all queues netwark can see.
+netwark_queues:
+  # This is an example queue for geo-localizing tasks to a Datacenter/circuit
+  - queue: lc_eqx_pa2
+    name: 'Equinix PA2'
+    location: '114 Rue Ambroise Croizat, 93200 Saint-Denis, France'
+    broadcast: true

@@ -29,4 +29,4 @@ dist/
 maxmind_db/
 .mapbox-token
 docs/_build/
-docker/
+docker/data/

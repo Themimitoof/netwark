@@ -1,14 +1,22 @@
+import logging
+
 from pyramid.config import Configurator
 from pyramid.session import SignedCookieSessionFactory
 from pyramid.events import NewRequest
+from celery import Celery
 
 from .events import flash_messages
+from .backend import configure_celery
+
+log = logging.getLogger(__name__)
+celery_app = Celery(include=['netwark.backend.tasks'])
 
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
     with Configurator(settings=settings) as config:
+        log.debug('Importing modules and routes...')
         config.include('cornice')
         config.include('.models')
         config.include('pypugjs.ext.pyramid')
@@ -17,6 +25,7 @@ def main(global_config, **settings):
         config.include('.api.v1')
 
         # Configure session factory
+        log.debug('Configuring the session factory...')
         session_factory = SignedCookieSessionFactory(
             config.registry.settings['session.token']
         )
@@ -33,7 +42,13 @@ def main(global_config, **settings):
         # Execute flash_messages method when a new request happen
         config.add_subscriber(flash_messages, NewRequest)
 
+        log.debug('Scanning views and errors modules...')
         config.scan('.views')
         config.scan('netwark.helpers.errors')
 
+        # Configure Celery
+        log.debug('Configuring Celery for handling tasks')
+        configure_celery(celery_app, config.registry.settings)
+
+        log.debug('Netwark webserver is configured!')
     return config.make_wsgi_app()

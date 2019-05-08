@@ -5,10 +5,28 @@ services:
   netwark:
     build: .
     restart: on-failure
+    # Uncomment this part if you are developping new features
+    #command: pserve --reload development.ini
     ports:
       - 127.0.0.1:6543:6543
+    # Uncomment this part if you are developping new features
     volumes:
-      - ./dist:/var/opt/netwark/dist
+      - .:/opt/netwark
+    depends_on:
+      - db
+      - rabbit
+    links:
+      - db:psql.netwark
+      - rabbit:rabbit.netwark
+
+  # Netwark backend
+  backend:
+    build: .
+    restart: on-failure
+    command: python netwark/bin/celery_backend.py development.ini
+    # Uncomment this part if you are developping new features
+    volumes:
+      - .:/opt/netwark
     depends_on:
       - db
       - rabbit
@@ -24,7 +42,7 @@ services:
       POSTGRES_PASSWORD: ReallyBadPwd
       POSTGRES_DB: netwark
     volumes:
-      - ./docker/pgdata:/var/lib/postgresql/data
+      - ./docker/data/pgdata:/var/lib/postgresql/data
 
   # RabbitMQ broker
   rabbit:
