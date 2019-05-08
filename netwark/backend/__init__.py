@@ -1,6 +1,11 @@
+import socket
+
 import yaml
+
 from celery import Celery
 from kombu.common import Queue, Exchange, Broadcast
+
+hostname = socket.gethostname()
 
 
 def configure_celery(app: Celery, app_settings):
@@ -17,10 +22,7 @@ def configure_celery(app: Celery, app_settings):
 
     default_exchange = Exchange(name='netwark', type='direct')
     broadcast_exchange = Broadcast('netwark.broadcast', 'netwark.broadcast')
-    celery_queues = [
-        Queue('netwark', default_exchange),
-        broadcast_exchange,
-    ]
+    celery_queues = [Queue('netwark', default_exchange), broadcast_exchange]
 
     for queue in queues:
         if queue['queue'].startswith('netwark.'):
@@ -29,7 +31,9 @@ def configure_celery(app: Celery, app_settings):
             queue_name = 'netwark.' + queue['queue']
 
         if 'broadcast' in queue:
-            celery_queues.append(Broadcast('netwark.broadcast', queue_name))
+            celery_queues.append(
+                Broadcast(queue_name, '{}@{}'.format(queue_name, hostname))
+            )
         else:
             celery_queues.append(Queue(queue_name, default_exchange))
 
