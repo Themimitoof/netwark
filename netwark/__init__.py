@@ -7,6 +7,7 @@ from celery import Celery
 
 from .events import flash_messages
 from .backend import configure_celery
+from .models.operation import OPERATION_FLAGS
 
 log = logging.getLogger(__name__)
 celery_app = Celery(include=['netwark.backend.tasks'])
@@ -33,7 +34,7 @@ def main(global_config, **settings):
 
         # Add operation glags to request methods
         def operation_flags(request):
-            return ['ping', 'mtr']
+            return OPERATION_FLAGS
 
         config.add_request_method(
             operation_flags, 'operation_flags', reify=True

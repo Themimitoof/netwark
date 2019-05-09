@@ -13,6 +13,7 @@ from sqlalchemy.sql.functions import now
 from .meta import Base
 from .types import UUID, JSON
 
+OPERATION_FLAGS = ['ping', 'mtr']
 
 operation_status = Enum(
     'waiting',
