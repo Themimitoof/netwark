@@ -38,6 +38,18 @@ class Operation(Base):
     created_at = Column(TIMESTAMP(False), nullable=False, default=now())
     updated_at = Column(TIMESTAMP(False), nullable=False, default=now())
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'type': self.type,
+            'status': self.status,
+            'target': self.destination,
+            'options': self.payload,
+            'queues': self.queues.split(','),
+            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S.%f'),
+            'updated_at': self.updated_at.strftime('%Y-%m-%d %H:%M:%S.%f'),
+        }
+
 
 class OperationResult(Base):
     __tablename__ = 'operation_result'

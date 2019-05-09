@@ -19,8 +19,10 @@ log = logging.getLogger(__name__)
 
 # --- Schemas
 class GetCollectionAPIParams(colander.MappingSchema):
-    per_page = colander.SchemaNode(colander.Integer(), max=1000, missing=50)
-    page = colander.SchemaNode(colander.Integer(), missing=1)
+    page = colander.SchemaNode(colander.Integer(), missing=0)
+    per_page = colander.SchemaNode(
+        colander.Integer(), validator=colander.Range(1, 1000), missing=50
+    )
     status = colander.SchemaNode(
         colander.String(),
         validator=colander.OneOf(OPERATION_FLAGS),
@@ -71,7 +73,7 @@ class ApiOperations(APIBase):
 
         query = (
             session.query(Operation)
-            .filter(Operation.created_at.desc())
+            .order_by(Operation.created_at.desc())
             .limit(params['per_page'])
             .offset(params['page'] * params['per_page'])
         )
@@ -82,4 +84,4 @@ class ApiOperations(APIBase):
         if 'type' in params:
             query = query.filter(Operation.type == params['type'])
 
-        return []
+        return [operation.to_dict() for operation in query.all()]
