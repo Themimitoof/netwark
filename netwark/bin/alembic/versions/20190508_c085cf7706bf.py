@@ -25,7 +25,7 @@ def upgrade():
         sa.Column('operation', types.UUID(), nullable=True),
         sa.Column('worker', sa.String(), nullable=False),
         sa.Column('queue', sa.String(), nullable=False),
-        sa.Column('status', sa.Enum('waiting', 'progress', 'done', 'error', 'timeout', name='en_operation_status'), nullable=False),
+        sa.Column('status', sa.Enum('pending', 'progress', 'done', 'error', 'timeout', name='en_operation_status'), nullable=False),
         sa.Column('payload', types.JSON(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(), nullable=False),
@@ -35,7 +35,7 @@ def upgrade():
 
     op.add_column('operation', sa.Column('payload', types.JSON(), nullable=True))
     op.add_column('operation', sa.Column('queues', sa.String(), nullable=False))
-    op.add_column('operation', sa.Column('status', sa.Enum('waiting', 'progress', 'done', 'error', 'timeout', name='en_operation_status'), nullable=False))
+    op.add_column('operation', sa.Column('status', sa.Enum('pending', 'progress', 'done', 'error', 'timeout', name='en_operation_status'), nullable=False))
     op.add_column('operation', sa.Column('updated_at', sa.TIMESTAMP(), nullable=False))
     op.alter_column('operation', 'created_at',
                existing_type=postgresql.TIMESTAMP(),

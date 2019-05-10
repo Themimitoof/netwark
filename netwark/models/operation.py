@@ -1,3 +1,5 @@
+import uuid
+
 from sqlalchemy import (
     Column,
     Integer,
@@ -16,7 +18,7 @@ from .types import UUID, JSON
 OPERATION_FLAGS = ['ping', 'mtr']
 
 operation_status = Enum(
-    'waiting',
+    'pending',
     'progress',
     'done',
     'error',
@@ -25,14 +27,21 @@ operation_status = Enum(
 )
 
 
+def gen_uuid():
+    """
+    Generates an string UUID4
+    """
+    return str(uuid.uuid4())
+
+
 class Operation(Base):
     __tablename__ = 'operation'
-    id = Column(UUID(), primary_key=True)
+    id = Column(UUID(), default=gen_uuid(), primary_key=True)
     type = Column(
         Enum('ping', 'mtr', name='en_operation_type'), nullable=False
     )
-    destination = Column(String(), nullable=False)
-    payload = Column(JSON())
+    target = Column(String(), nullable=False)
+    options = Column(String(), nullable=True)
     queues = Column(String(), default='netwark', nullable=False)
     status = Column(operation_status, nullable=False)
     created_at = Column(TIMESTAMP(False), nullable=False, default=now())
@@ -43,8 +52,8 @@ class Operation(Base):
             'id': self.id,
             'type': self.type,
             'status': self.status,
-            'target': self.destination,
-            'options': self.payload,
+            'target': self.target,
+            'options': self.options,
             'queues': self.queues.split(','),
             'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S.%f'),
             'updated_at': self.updated_at.strftime('%Y-%m-%d %H:%M:%S.%f'),
@@ -53,7 +62,7 @@ class Operation(Base):
 
 class OperationResult(Base):
     __tablename__ = 'operation_result'
-    id = Column(UUID(), primary_key=True)
+    id = Column(UUID(), default=gen_uuid(), primary_key=True)
     operation_id = Column('operation', UUID(), ForeignKey('operation.id'))
     worker = Column(String(), nullable=False)
     queue = Column(String(), nullable=False)
