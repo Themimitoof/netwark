@@ -1,11 +1,15 @@
+import sys
+import traceback
 import logging
 
 import colander
 from pyramid.exceptions import HTTPBadRequest, HTTPNotFound
+from pyramid.httpexceptions import HTTPInternalServerError
 from cornice.resource import resource, view
 from cornice.validators import (
     colander_querystring_validator,
     colander_path_validator,
+    colander_body_validator,
 )
 
 from .. import APIBase
@@ -67,7 +71,7 @@ class GetAPIParams(colander.MappingSchema):
 class PostAPIParams(colander.MappingSchema):
     type = colander.SchemaNode(
         colander.String(),
-        validator=colander.OneOf(operation_status.enums),  # pylint:disable-all
+        validator=colander.OneOf(OPERATION_FLAGS),  # pylint:disable-all
     )
     target = colander.SchemaNode(colander.String())
     options = colander.SchemaNode(colander.String(), missing=colander.drop)
@@ -152,3 +156,62 @@ class ApiOperations(APIBase):
 
         return output
 
+    @view(
+        renderer='json',
+        schema=PostAPIParams,
+        validators=(colander_body_validator),
+    )
+    def collection_post(self):
+        """
+        Create new operation with the informations received in parameters
+
+        TODO: For queues, use the dict for matching with existing queues
+        """
+        params = self.request.validated
+        session = DBSession(self.request.registry.settings)
+
+        operation = Operation(
+            type=params['type'], target=params['target'], status='pending'
+        )
+
+        # Manage queues
+        if 'queues' not in params:
+            operation.queues = 'netwark.broadcast'
+        else:
+            for queue in params['queues']:
+                if not queue.startswith('netwark.'):
+                    queue = 'netwark.' + queue
+
+                if operation.queues:
+                    operation.queues = operation.queues + ',' + queue
+                else:
+                    operation.queues = queue
+
+        if 'options' in params:
+            operation.options = params['options']
+
+        # Create the operation in database
+        log.info('Create new operation %r', operation)
+        try:
+            session.add(operation)
+            session.commit()
+
+            # Push the task into the queue
+            queues = operation.queues.split(',')
+
+            for queue in queues:
+                log.info(
+                    'Pushing task %r for the queue %r.', operation.id, queue
+                )
+
+                # TODO: Trigger a 500 error if the broker is not available.
+                run_operation.apply_async(
+                    kwargs={'oper_id': operation.id}, queue=queue, retry=False
+                )
+        except Exception as err:
+            log.critical('Unable to create operation on database or the queue')
+            traceback.print_exc(file=sys.stdout)
+            session.rollback()
+            raise HTTPInternalServerError
+
+        return {'message': 'Operation created', 'operation_id': operation.id}
