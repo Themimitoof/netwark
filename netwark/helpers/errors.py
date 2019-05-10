@@ -27,6 +27,10 @@ def http_exception(exc, request: Request):
             'You are not allowed to access to this endpoint. '
             'Please check your apikey or your permissions.',
         ),
+        405: (
+            'netwark:templates/404.pug',
+            'Method not available for this endpoint.',
+        ),
         500: (
             'netwark:templates/500.pug',
             'An unexpected error happened on '
