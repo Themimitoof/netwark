@@ -100,19 +100,15 @@ class ApiOperations(APIBase):
         params = self.request.validated
         session = DBSession(self.request.registry.settings)
 
-        query = (
-            session.query(Operation).order_by(Operation.created_at.desc())
-            # TODO: Create the pagination system
-            # and send some informations in response headers
-            # .limit(params['per_page'])
-            # .offset(params['page'] * params['per_page'])
-        )
+        query = session.query(Operation).order_by(Operation.created_at.desc())
 
         if 'status' in params:
             query = query.filter(Operation.status == params['status'])
 
         if 'type' in params:
             query = query.filter(Operation.type == params['type'])
+
+        query = query.limit(params['per_page']).offset(params['page'])
 
         return [operation.to_dict() for operation in query.all()]
 
