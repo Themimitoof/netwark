@@ -14,8 +14,10 @@ from cornice.validators import (
 
 from .. import APIBase
 from ..context import APIContext
+from netwark import celery_app
 from netwark.models import DBSession, Operation, OperationResult
 from netwark.models.operation import OPERATION_FLAGS, operation_status
+from netwark.backend import is_broker_available
 from netwark.backend.tasks import run_operation
 
 log = logging.getLogger(__name__)
@@ -191,27 +193,36 @@ class ApiOperations(APIBase):
             operation.options = params['options']
 
         # Create the operation in database
-        log.info('Create new operation %r', operation)
-        try:
-            session.add(operation)
-            session.commit()
+        if is_broker_available(celery_app):
+            log.info('Create new operation %r', operation)
+            try:
+                session.add(operation)
+                session.commit()
 
-            # Push the task into the queue
-            queues = operation.queues.split(',')
+                # Push the task into the queue
+                queues = operation.queues.split(',')
 
-            for queue in queues:
-                log.info(
-                    'Pushing task %r for the queue %r.', operation.id, queue
+                for queue in queues:
+                    log.info(
+                        'Pushing task %r for the queue %r.',
+                        operation.id,
+                        queue,
+                    )
+
+                    run_operation.apply_async(
+                        kwargs={'oper_id': operation.id},
+                        queue=queue,
+                        retry=False,
+                    )
+            except Exception as err:
+                log.critical(
+                    'Unable to create operation on database or an eror '
+                    'was occured with the broker.'
                 )
-
-                # TODO: Trigger a 500 error if the broker is not available.
-                run_operation.apply_async(
-                    kwargs={'oper_id': operation.id}, queue=queue, retry=False
-                )
-        except Exception as err:
-            log.critical('Unable to create operation on database or the queue')
-            traceback.print_exc(file=sys.stdout)
-            session.rollback()
+                traceback.print_exc(file=sys.stdout)
+                session.rollback()
+                raise HTTPInternalServerError
+        else:
             raise HTTPInternalServerError
 
         return {'message': 'Operation created', 'operation_id': operation.id}

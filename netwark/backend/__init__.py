@@ -1,10 +1,13 @@
 import socket
+import logging
 
 import yaml
 
 from celery import Celery
+from kombu import Connection
 from kombu.common import Queue, Exchange, Broadcast
 
+log = logging.getLogger(__name__)
 hostname = socket.gethostname()
 
 
@@ -39,3 +42,19 @@ def configure_celery(app: Celery, app_settings):
 
     app.conf.task_queues = celery_queues
     return app
+
+
+def is_broker_available(app):
+    """
+    Checks if the broker is available by initializing a connection with them.
+    """
+    broker_url = app.conf['broker_url']
+
+    try:
+        conn = Connection(broker_url)
+        conn.ensure_connection(max_retries=1)
+        return True
+    except Exception as err:
+        log.critical('An error is occured with the broker. Message: %r', err)
+    else:
+        return False
