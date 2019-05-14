@@ -1,9 +1,4 @@
-import os
 import logging
-import re
-import subprocess
-import json
-from ipaddress import ip_address
 
 from pyramid.request import Request
 from pyramid.httpexceptions import HTTPFound

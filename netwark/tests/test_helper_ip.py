@@ -1,5 +1,4 @@
 import pytest
-import logging
 import unittest
 from unittest import mock
 

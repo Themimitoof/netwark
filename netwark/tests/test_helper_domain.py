@@ -1,7 +1,5 @@
 import pytest
-import logging
 import unittest
-from unittest import mock
 
 from ..helpers import domain
 

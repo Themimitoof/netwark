@@ -1,7 +1,6 @@
 import logging
 import argparse
 import sys
-import re
 
 from celery import Celery
 from pyramid.paster import bootstrap, setup_logging, get_appsettings

@@ -1,5 +1,4 @@
 import logging
-import re
 
 import colander
 from pyramid.exceptions import HTTPBadRequest, HTTPNotFound
