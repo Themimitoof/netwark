@@ -11,7 +11,7 @@ from cornice.validators import (
 
 from .. import APIBase
 from ..context import APIContext
-from netwark.models import OuiVendor, DBSession
+from netwark.models import OuiVendor
 
 log = logging.getLogger(__name__)
 
@@ -81,7 +81,7 @@ class ApiMacOUI(APIBase):
         validators=(colander_querystring_validator, truncate_macaddr),
     )
     def collection_get(self):
-        session = DBSession(self.request.registry.settings)
+        session = self.request.dbsession
 
         if (
             'assignment' not in self.request.validated
@@ -110,7 +110,7 @@ class ApiMacOUI(APIBase):
         validators=(colander_path_validator, truncate_macaddr),
     )
     def get(self):
-        session = DBSession(self.request.registry.settings)
+        session = self.request.dbsession
         resource = self.request.validated['resource']
 
         if self.request.validated['is_macaddr']:

@@ -15,7 +15,7 @@ from cornice.validators import (
 from .. import APIBase
 from ..context import APIContext
 from netwark import celery_app
-from netwark.models import DBSession, Operation, OperationResult
+from netwark.models import Operation, OperationResult
 from netwark.models.operation import OPERATION_FLAGS, operation_status
 from netwark.backend import is_broker_available
 from netwark.backend.tasks import run_operation
@@ -98,7 +98,7 @@ class ApiOperations(APIBase):
     )
     def collection_get(self):
         params = self.request.validated
-        session = DBSession(self.request.registry.settings)
+        session = self.request.dbsession
 
         query = session.query(Operation).order_by(Operation.created_at.desc())
 
@@ -124,7 +124,7 @@ class ApiOperations(APIBase):
         """
         params = self.request.validated
         operation = params['operation']
-        session = DBSession(self.request.registry.settings)
+        session = self.request.dbsession
 
         # Retrieve operation results
         operation_results = (
@@ -166,7 +166,7 @@ class ApiOperations(APIBase):
         TODO: For queues, use the dict for matching with existing queues
         """
         params = self.request.validated
-        session = DBSession(self.request.registry.settings)
+        session = self.request.dbsession
 
         operation = Operation(
             type=params['type'], target=params['target'], status='pending'

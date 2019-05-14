@@ -1,12 +1,20 @@
+import sys
+import traceback
+import logging
+
 from sqlalchemy import engine_from_config
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import configure_mappers
+from sqlalchemy.orm import sessionmaker, configure_mappers
+from pyramid.httpexceptions import HTTPInternalServerError
 import zope.sqlalchemy
 
 # import or define all models here to ensure they are attached to the
 # Base.metadata prior to any initialization routines
+from .meta import Base
 from .operation import Operation, OperationResult
 from .oui_vendor import OuiVendor
+
+
+log = logging.getLogger(__name__)
 
 # run configure_mappers after defining all of the models to ensure
 # all relationships can be setup
@@ -52,9 +60,16 @@ def get_tm_session(session_factory, transaction_manager):
 
 
 def DBSession(settings):
-    engine = get_engine(settings)
-    session_factory = get_session_factory(engine)
-    dbsession = session_factory()
+    try:
+        engine = get_engine(settings)
+        engine.connect()  # Test engine connection
+
+        session_factory = get_session_factory(engine)
+        dbsession = session_factory()
+    except Exception as err:
+        log.critical('Unable to create database session.')
+        traceback.print_exc(file=sys.stdout)
+        raise HTTPInternalServerError()
 
     return dbsession
 
@@ -75,13 +90,8 @@ def includeme(config):
     # use pyramid_retry to retry a request when transient exceptions occur
     config.include('pyramid_retry')
 
-    session_factory = get_session_factory(get_engine(settings))
-    config.registry['dbsession_factory'] = session_factory
-
     # make request.dbsession available for use in Pyramid
     config.add_request_method(
         # r.tm is the transaction manager used by pyramid_tm
-        lambda r: get_tm_session(session_factory, r.tm),
-        'dbsession',
-        reify=True,
+        lambda r: DBSession(settings), 'dbsession', reify=True
     )
