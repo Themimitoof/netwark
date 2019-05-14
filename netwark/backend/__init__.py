@@ -9,6 +9,7 @@ from kombu.common import Queue, Exchange, Broadcast
 
 log = logging.getLogger(__name__)
 hostname = socket.gethostname()
+backend_queues = []
 
 
 def configure_celery(app: Celery, app_settings):
@@ -28,10 +29,11 @@ def configure_celery(app: Celery, app_settings):
     celery_queues = [Queue('netwark', default_exchange), broadcast_exchange]
 
     for queue in queues:
-        if queue['queue'].startswith('netwark.'):
-            queue_name = queue['queue']
-        else:
-            queue_name = 'netwark.' + queue['queue']
+        if not queue['queue'].startswith('netwark.'):
+            queue['queue'] = 'netwark.' + queue['queue']
+
+        queue_name = queue['queue']
+        backend_queues.append(queue)  # Insert the queue into a reusable list
 
         if 'broadcast' in queue:
             celery_queues.append(

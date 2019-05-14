@@ -6,6 +6,76 @@ var leaflet = require('leaflet'),
 leaflet.Icon.Default.imagePath = '/static/img/leaflet/';
 
 /**
+ * Operation modal
+ */
+if(document.querySelector("#operation-create-btn") != null) {
+    let btn = document.querySelector("#operation-create-btn");
+    let modal = document.querySelector("#operation-modal");
+    let form = document.querySelector('form#operation-create-form');
+    let submit_btn = document.querySelector("#operation-modal #operation-modal-submit");
+    let close_btn = document.querySelector("#operation-modal #operation-modal-close");
+    let cancel_btn = document.querySelector("#operation-modal #operation-modal-cancel");
+    let queues_list = document.querySelector("#operation-create-queues-list");
+
+    let close_modal = () => {
+        modal.style.display = "none";
+        form.reset();
+    }
+
+    // Show the modal
+    btn.addEventListener("click", () => modal.style.display = "");
+
+    close_btn.addEventListener("click", () => close_modal());
+    cancel_btn.addEventListener("click", () => close_modal());
+
+    // Retrieve available queues
+    fetch(new URL(location.origin + "/api/v1/management/backend/queues")).then(resp => {
+        if(resp.status != 200) {
+            var tip = document.createElement("div");
+            tip.classList.add(...["siimple-tip", "siimple-tip--warning", "siimple-tip--exclamation"]);
+            tip.textContent = `Unable to retrieve the list of queues. Please retry more later.`;
+            queues_list.appendChild(tip);
+        } else {
+            resp.json().then(payload => {
+                // Build each checkbox in good form.
+                payload.forEach(queue => {
+                    let div = document.createElement("div");
+                    div.classList.add("queue");
+
+                    let label = document.createElement("label");
+                    label.classList.add("siimple-label");
+                    label.textContent = queue.name;
+
+
+                    let checkbox_div = document.createElement("div");
+                    checkbox_div.classList.add("siimple-checkbox");
+
+                    let checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.name = "queues";
+                    checkbox.value = queue.queue;
+                    checkbox.id = `operation-queue--${queue.queue}`;
+
+                    let checkbox_label = document.createElement("label");
+                    checkbox_label.setAttribute("for", checkbox.id);
+
+                    if(queue.broadcast == false) {
+                        label.textContent = `${queue.name} (not broadcast)`;
+                        checkbox_div.classList.add("siimple-checkbox--warning");
+                    }
+
+                    checkbox_div.appendChild(checkbox);
+                    checkbox_div.appendChild(checkbox_label);
+                    div.appendChild(label);
+                    div.appendChild(checkbox_div);
+                    queues_list.appendChild(div);
+                });
+            });
+        }
+    })
+}
+
+/**
  * WHOIS search box
  */
 if(document.querySelector(".search-box#whois-search-box") != null) {
