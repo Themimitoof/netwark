@@ -98,19 +98,18 @@ if(document.querySelector("#operation-create-btn") != null) {
             }
         }).then(resp => {
             resp.json().then(payload => {
-                console.log(payload)
-                if(resp.status >= 400 && resp.status <= 499) {
+                if(resp.status >= 500 && resp.status < 599) {
                     let tip = document.createElement("div");
-                    tip.classList.add(...["siimple-tip", "siimple-tip--warning", "siimple-tip--exclamation"]);
-                    tip.textContent = "Some informations are not provided or not correct. Error: " + payload.;
+                    tip.classList.add(...["siimple-tip", "siimple-tip--error", "siimple-tip--exclamation"]);
+                    tip.textContent = "Internal server error. Unable to create the operation.";
                     modal_body.prepend(tip);
 
                     // Destroy the tip after 5 seconds
                     setTimeout(() => tip.remove(), 5000);
-                } else if(resp.status >= 500 && resp.status <= 599) {
+                } else if(resp.status >= 400 && resp.status <= 499) {
                     let tip = document.createElement("div");
-                    tip.classList.add(...["siimple-tip", "siimple-tip--danger", "siimple-tip--exclamation"]);
-                    tip.textContent = "Internal server error. Unable to create the operation.";
+                    tip.classList.add(...["siimple-tip", "siimple-tip--warning", "siimple-tip--exclamation"]);
+                    tip.textContent = "Some informations are not provided or not correct.";
                     modal_body.prepend(tip);
 
                     // Destroy the tip after 5 seconds
