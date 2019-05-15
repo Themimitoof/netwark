@@ -3,16 +3,16 @@
         .siimple-modal-header
             .siimple-modal-header-title Create new operation
             .siimple-modal-header-close#operation-modal-close
-        form.siimple-form#operation-create-form(action="")
+        form.siimple-form#operation-create-form(action="" method="POST")
             .siimple-modal-body
 
                 .siimple-form-field-label Tool
-                select.siimple-select.siimple-select--fluid.siimple-input--medium#operation-type(name="type" required="yes")
-                    option(name="mtr") MTR
-                    option(name="ping") Ping
+                select.siimple-select.siimple-select--fluid.siimple-input--medium#operation-type(name="type" required)
+                    option(value="mtr") mtr
+                    option(value="ping") Ping
 
                 .siimple-form-field-label Target
-                input.siimple-input.siimple-input--fluid.siimple-input--medium#operation-target(type="text", name="target" placeholder="Example: 1.1.1.1, 2001:8db:34:33ff::34, k.root-servers.net" required="yes")
+                input.siimple-input.siimple-input--fluid.siimple-input--medium#operation-target(type="text", name="target" placeholder="Example: 1.1.1.1, 2001:8db:34:33ff::34, k.root-servers.net" required)
 
                 .siimple-form-field-label Custom options
                 input.siimple-input.siimple-input--fluid.siimple-input--medium#operation-options(type="text", name="options")
@@ -30,7 +30,7 @@
                             .siimple-checkbox
                                 input(type="checkbox" name="queues" id="operation-queue--netwark.broadcast" value="netwark.broadcast")
                                 label(for="operation-queue--netwark.broadcast")
-        .siimple-modal-footer
-            .siimple-text-right
-                button.siimple-btn.siimple-btn--primary#operation-modal-submit Submit
-                button.siimple-btn.siimple-btn--secondary#operation-modal-cancel(action="cancel") Cancel
+            .siimple-modal-footer
+                .siimple-text-right
+                    button.siimple-btn.siimple-btn--primary#operation-modal-submit(action="submit") Submit
+                    button.siimple-btn.siimple-btn--secondary#operation-modal-cancel(action="cancel") Cancel

@@ -11,8 +11,8 @@ leaflet.Icon.Default.imagePath = '/static/img/leaflet/';
 if(document.querySelector("#operation-create-btn") != null) {
     let btn = document.querySelector("#operation-create-btn");
     let modal = document.querySelector("#operation-modal");
+    let modal_body = document.querySelector("#operation-modal .siimple-modal-body");
     let form = document.querySelector('form#operation-create-form');
-    let submit_btn = document.querySelector("#operation-modal #operation-modal-submit");
     let close_btn = document.querySelector("#operation-modal #operation-modal-close");
     let cancel_btn = document.querySelector("#operation-modal #operation-modal-cancel");
     let queues_list = document.querySelector("#operation-create-queues-list");
@@ -72,7 +72,58 @@ if(document.querySelector("#operation-create-btn") != null) {
                 });
             });
         }
-    })
+    });
+
+    // Send the form
+    form.addEventListener("submit", e => {
+        e.preventDefault();
+
+        let form_data = new FormData(form);
+        let json_data = {
+          queues: []
+        };
+
+        // Put all the form informations into JSON serialable
+        form_data.forEach(function(value, key) {
+            if(key == "queues") json_data.queues.push(value);
+            else json_data[key] = value;
+        });
+
+        fetch(new URL(location.origin + "/api/v1/operations"), {
+            method: "POST",
+            body: JSON.stringify(json_data),
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            }
+        }).then(resp => {
+            resp.json().then(payload => {
+                console.log(payload)
+                if(resp.status >= 400 && resp.status <= 499) {
+                    let tip = document.createElement("div");
+                    tip.classList.add(...["siimple-tip", "siimple-tip--warning", "siimple-tip--exclamation"]);
+                    tip.textContent = "Some informations are not provided or not correct. Error: " + payload.;
+                    modal_body.prepend(tip);
+
+                    // Destroy the tip after 5 seconds
+                    setTimeout(() => tip.remove(), 5000);
+                } else if(resp.status >= 500 && resp.status <= 599) {
+                    let tip = document.createElement("div");
+                    tip.classList.add(...["siimple-tip", "siimple-tip--danger", "siimple-tip--exclamation"]);
+                    tip.textContent = "Internal server error. Unable to create the operation.";
+                    modal_body.prepend(tip);
+
+                    // Destroy the tip after 5 seconds
+                    setTimeout(() => tip.remove(), 5000);
+                } else {
+                    if(Object.keys(payload).indexOf("operation_id") != -1) {
+                        window.location.href = `${location.origin}/operations/${payload.operation_id}`;
+                    }
+                }
+            });
+
+        });
+    });
 }
 
 /**
@@ -245,7 +296,7 @@ if(document.querySelector("#ipcalc-form") != null) {
     var input = document.querySelector("input[name=resource]");
     var errors = document.querySelector("#ipcalc-errors");
 
-    input.addEventListener("input", (el) => {
+    input.addEventListener("input", () => {
         if(input.value == "") input.classList.remove("siimple-input--danger");
         else {
             if(validators.validate_ipv4(input.value, true) || validators.validate_ipv6(input.value, true)) {
@@ -256,9 +307,6 @@ if(document.querySelector("#ipcalc-form") != null) {
                 fetch(url).then(resp => {
                     resp.json().then(json => {
                         if(resp.status == 200) {
-                            console.log(json);
-
-
                             // Fill netmask input for IPv4 with a CIDR < 31
                             if(Object.keys(json).includes("netmask")) {
                                 document.querySelector("#netmask-addr").classList.remove("hidden");

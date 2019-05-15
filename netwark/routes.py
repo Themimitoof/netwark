@@ -5,8 +5,8 @@ def includeme(config):
     config.add_route('overview', '/')
 
     # Operations related routes
-    config.add_route('operation_new', '/operation/new')
-    config.add_route('operation_info', '/operation/{uuid}')
+    config.add_route('operations_list', '/operations')
+    config.add_route('operations_info', '/operations/{uuid}')
 
     # IP Calc routes
     config.add_route('ipcalc', '/tools/ipcalc')
