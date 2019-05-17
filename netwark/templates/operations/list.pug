@@ -1,0 +1,47 @@
+extends ../layout/main
+
+block content
+    .container
+        h1 List of operations (total: !{len(data)})
+
+        .siimple-table.siimple-table--striped.siimple-table--hover
+            .siimple-table-header
+                .siimple-table-row
+                    .siimple-table-cell.siimple-table-cell--2 Target
+                    .siimple-table-cell.siimple-table-cell--1 Tool
+                    .siimple-table-cell.siimple-table-cell--2 Queues
+                    .siimple-table-cell.siimple-table-cell--1 Status
+                    .siimple-table-cell.siimple-table-cell--2 Created at
+                    .siimple-table-cell.siimple-table-cell--2 Updated at
+                    .siimple-table-cell.siimple-table-cell--2
+
+            .siimple-table-body
+                each operation in data
+                    .siimple-table-row
+                        .siimple-table-cell= operation['target']
+                        .siimple-table-cell
+                            .siimple-tag.siimple-tag--primary= operation['type']
+
+                        .siimple-table-cell
+                            each queue in operation['queues']
+                                .siimple-tag.siimple-tag--primary= queue
+                        .siimple-table-cell
+                            if operation['status'] == 'pending'
+                                .siimple-tag.siimple-tag--light Pending
+                            elif operation['status'] == 'progress'
+                                .siimple-tag.siimple-tag--primary In progress
+                            elif operation['status'] == 'timeout'
+                                .siimple-tag.siimple-tag--warning Timeout
+                            elif operation['status'] == 'error'
+                                .siimple-tag.siimple-tag--error Error
+                            elif operation['status'] == 'done'
+                                .siimple-tag.siimple-tag--success Finished
+                            else
+                                .siimple-tag.siimple-tag--dark Unknown
+                        .siimple-table-cell= operation['created_at']
+                        .siimple-table-cell= operation['updated_at']
+                        .siimple-table-cell
+                            //- TODO: Use origin URL by security
+                            a.siimple-btn.siimple-btn--primary.siimple-btn--small(href="./operations/"+operation['id'])
+                                i.icon.icon-eye.icon-sm
+                                | &nbsp; Show
