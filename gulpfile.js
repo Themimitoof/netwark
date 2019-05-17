@@ -50,9 +50,22 @@ gulp.task('js:watch', () => {
 
 
 /**
+ * Images and fonts tasks
+ */
+gulp.task('images', () => {
+    return gulp.src('./assets/images/**')
+               .pipe(gulp.dest('./dist/images/'));
+});
+
+gulp.task('fonts', () => {
+    return gulp.src('./assets/fonts/**')
+               .pipe(gulp.dest('./dist/fonts/'));
+});
+
+/**
  * General and default tasks
  */
 
-gulp.task('all', gulp.series('css', 'js'));
+gulp.task('all', gulp.series('css', 'js', 'images', 'fonts'));
 gulp.task('all:watch', gulp.parallel('css:watch', 'js:watch'));
 gulp.task('default', gulp.series('all'));
