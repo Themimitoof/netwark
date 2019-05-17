@@ -6,6 +6,7 @@ from celery import Celery
 from pyramid.paster import bootstrap, setup_logging, get_appsettings
 
 from netwark.backend import configure_celery
+from netwark.helpers.ConfigRegistry import ConfigRegistry
 
 log = logging.getLogger('netwark_worker')
 
@@ -21,17 +22,14 @@ def parse_args(argv):
 def main(argv=sys.argv):
     args = parse_args(argv)
     setup_logging(args.config_uri)
-    app_settings = get_appsettings(args.config_uri)
+    config = ConfigRegistry('netwark.app', get_appsettings(args.config_uri))
 
-    print("Starting netwark backend")
+    log.info("Starting netwark backend")
     app = Celery(include=['netwark.backend.tasks'])
-    configure_celery(app, app_settings)
+    configure_celery(app, config.configuration)
 
     # TODO: Make it modifiable with args
-    worker_args = [
-        'worker',
-        '--loglevel=INFO',
-    ]
+    worker_args = ['worker', '--loglevel=INFO', '--beat']
 
     app.worker_main(worker_args)
 
