@@ -1,1 +1,1 @@
-from .task_operation import run_operation
+from .task_operation import run_operation, check_operations_statuses

@@ -16,6 +16,8 @@ def configure_celery(app: Celery, app_settings):
     """
     Configure a Celery app with elements in configuration file.
     """
+    from netwark.backend.tasks.task_operation import check_operations_statuses
+
     with open(app_settings['backend.config'], 'r') as raw_config:
         config = yaml.load(raw_config, Loader=yaml.SafeLoader)
 
@@ -44,6 +46,14 @@ def configure_celery(app: Celery, app_settings):
             celery_queues.append(Queue(queue_name, default_exchange))
 
     app.conf.task_queues = celery_queues
+
+    # Configure periodic tasks
+    log.info(
+        'Configuring check_operations_statuses task to be executed '
+        'every 60 seconds.'
+    )
+    app.add_periodic_task(60.0, check_operations_statuses.s())
+
     return app
 
 
