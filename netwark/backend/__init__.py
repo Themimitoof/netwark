@@ -35,11 +35,12 @@ def configure_celery(app: Celery, app_settings):
         queue_name = queue['queue']
         backend_queues.append(queue)  # Insert the queue into a reusable list
 
-        if 'broadcast' in queue:
+        if 'broadcast' in queue and queue['broadcast'] is True:
             celery_queues.append(
                 Broadcast(queue_name, '{}@{}'.format(queue_name, hostname))
             )
         else:
+            queue['broadcast'] = False
             celery_queues.append(Queue(queue_name, default_exchange))
 
     app.conf.task_queues = celery_queues
