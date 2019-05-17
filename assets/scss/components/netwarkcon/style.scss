@@ -31,6 +31,10 @@ i.icon.icon-normalize {
   font-size: 14px;
 }
 
+i.icon.icon-sm {
+  font-size: 12px;
+}
+
 .icon-plus {
   &:before {
     content: $icon-plus;

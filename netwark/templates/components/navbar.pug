@@ -1,12 +1,18 @@
 .siimple-navbar.siimple-navbar--dark.siimple-navbar--fluid
     a.siimple-navbar-title Netwark
-    a.siimple-navbar-item(href='/') Overview
+    a.siimple-navbar-item(href='/')
+        i.icon.icon-home.normalize-size
+        | &nbsp; Overview
+    a.siimple-navbar-item(href='/operations') Operations
     .dropdown
-        a.siimple-navbar-item(href="#") Tools
+        a.siimple-navbar-item(href="#") Tools &nbsp;
+            i.icon.icon-angle-down.normalize-size
         .dropdown-content
             a(href='/tools/whois') WHOIS
             a(href='/tools/ipcalc') IP calculator
             a(href='/tools/mac-oui') MAC Lookup
 
     .siimple--float-right
-        a.siimple-navbar-item.siimple-btn.siimple-btn--green#operation-create-btn(href='#') New operation
+        a.siimple-navbar-item.siimple-btn.siimple-btn--green#operation-create-btn(href='#')
+            i.icon.icon-plus.normalize-size
+            | &nbsp; New operation
