@@ -3,6 +3,8 @@ Contains all tasks about operations
 """
 import time
 import logging
+import json
+import re
 
 from subprocess import Popen, PIPE
 from datetime import datetime, timedelta
@@ -82,7 +84,9 @@ def run_operation(self, oper_id: str):
     # Execute the command
     if operation.type == 'ping':
         options = operation.options if operation.options else '-c10'
-        cmd = Popen(['ping', options, operation.target], stdout=PIPE, stderr=PIPE)
+        cmd = Popen(
+            ['ping', options, operation.target], stdout=PIPE, stderr=PIPE
+        )
     elif operation.type == 'mtr':
         options = operation.options if operation.options else '-c10 -bzrj'
         log.info('mtr command')
@@ -97,31 +101,68 @@ def run_operation(self, oper_id: str):
 
     timer = time.time()  # Start a timer to log when the command was runned
 
-    while cmd.poll() != 0:
-        log.info(cmd.stdout.read().decode('utf-8'))
-        log.info(cmd.stderr.read().decode('utf-8'))
+    while cmd.poll() is None:
+        # Put the task in timeout if is running more than 2 minutes or
+        # update `updated_at` date every each 20 seconds
+        if timer - time.time() >= 120:
+            log.info(
+                '%r is running since more than 2 minutes. Stop his '
+                'execution.',
+                operation.type,
+            )
+            oper_result.status = 'timeout'
+            oper_result.updated_at = now()
+            session.add(oper_result)
+            session.commit()
+            cmd.kill()
+        elif timer - time.time() >= 20:
+            oper_result.updated_at = now()
+            session.add(oper_result)
+            session.commit()
 
-        if cmd.poll() == 0:
-            log.info(cmd.stdout.read().decode('utf-8'))
-        else:
-            # Put the task in timeout if is running more than 2 minutes or
-            # update `updated_at` date every each 20 seconds
-            if timer - time.time() >= 120:
-                log.info(
-                    '%r is running since more than 2 minutes. Stop his '
-                    'execution.',
-                    operation.type,
-                )
-                oper_result.status = 'timeout'
-                oper_result.updated_at = now()
-                session.commit()
-                cmd.terminate()
-            elif timer - time.time() >= 20:
-                oper_result.updated_at = now()
-                session.add(oper_result)
-                session.commit()
+        time.sleep(2)
 
-            time.sleep(2)
+    if cmd.returncode == 0:
+        if operation.type == 'ping':
+            stdout = cmd.stdout.read().decode('utf-8').split('\n')
+            db_payload = {
+                'transmitted': 0,
+                'received': 0,
+                'duplicates': 0,
+                'loss': 0,
+                'min': 0,
+                'max': 0,
+                'average': 0,
+                'raw': stdout
+            }
+
+            stdout = stdout[-3:-1]  # Take only summary lines
+            summary = stdout[0].split(', ')
+            stats = re.findall(r'\d+.\d+', stdout[1])
+
+            # Retrieve information from summary line
+            for line in summary:
+                if 'transmitted' in line:
+                    db_payload['transmitted'] = re.findall(r'\d+', line)
+                elif 'received' in line:
+                    db_payload['received'] = re.findall(r'\d+', line)
+                elif 'duplicates' in line:
+                    db_payload['duplicates'] = re.findall(r'\d+', line)
+                elif 'packet loss' in line:
+                    db_payload['loss'] = re.findall(r'\d+.\d+|\d+', line)
+
+            # Retrieve informations from stats line
+            db_payload['min'] = stats[0]
+            db_payload['average'] = stats[1]
+            db_payload['max'] = stats[2]
+
+            oper_result.status = 'done'
+            oper_result.payload = json.dumps(db_payload)
+            oper_result.updated_at = now()
+            session.add(oper_result)
+            session.commit()
+
+    #     log.info(cmd.stderr.read().decode('utf-8'))
 
 
 @celery_app.task(name='netwark.check_operations_statuses')
