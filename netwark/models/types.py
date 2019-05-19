@@ -54,36 +54,3 @@ class UUID(TypeDecorator):
     def process_result_value(self, value, dialect):
         # mysql should convert bytes in uuid if BINARY
         return value
-
-
-class JSON(TypeDecorator):
-    """
-    Platform-independent JSON type.
-
-    Uses Postgresql's JSON type, otherwise uses TEXT, storing as
-    stringified hex values.
-    """
-
-    impl = TEXT
-
-    def load_dialect_impl(self, dialect):
-        if dialect.name == 'postgresql':
-            return dialect.type_descriptor(PgJSON(False))
-        else:
-            return dialect.type_descriptor(TEXT())
-
-    def process_bind_param(self, value, dialect):
-        if value is None:
-            return value
-
-        if isinstance(value, basestring):
-            value = json.load(value)
-        elif not isinstance(value, json):
-            raise ValueError('%r is not a valid JSON format.' % value)
-
-        # mysql should be value.bytes if BINARY
-        return str(value)
-
-    def process_result_value(self, value, dialect):
-        # mysql should convert bytes in uuid if BINARY
-        return value

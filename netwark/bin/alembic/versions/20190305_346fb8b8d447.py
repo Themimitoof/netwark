@@ -29,7 +29,7 @@ def upgrade():
             sa.Enum('ping', 'mtr', name='en_operation_type'),
             nullable=False,
         ),
-        sa.Column('options', types.JSON(), nullable=True),
+        sa.Column('options', sa.JSON(), nullable=True),
         sa.Column('created_at', sa.TIMESTAMP(), nullable=True),
         sa.PrimaryKeyConstraint('id', name=op.f('pk_operation')),
     )

@@ -7,13 +7,14 @@ from sqlalchemy import (
     TIMESTAMP,
     ARRAY,
     ForeignKey,
-    String
+    String,
+    JSON,
 )
 from sqlalchemy.orm import relationship, backref, aliased
 from sqlalchemy.sql.functions import now
 
 from .meta import Base
-from .types import UUID, JSON
+from .types import UUID
 
 OPERATION_FLAGS = ['ping', 'mtr']
 
@@ -45,7 +46,9 @@ class Operation(Base):
     queues = Column(String(), default='netwark', nullable=False)
     status = Column(operation_status, nullable=False)
     created_at = Column(TIMESTAMP(False), nullable=False, default=now())
-    updated_at = Column(TIMESTAMP(False), nullable=False, default=now())
+    updated_at = Column(
+        TIMESTAMP(False), nullable=False, default=now(), onupdate=now()
+    )
 
     def to_dict(self):
         return {
@@ -67,8 +70,10 @@ class OperationResult(Base):
     worker = Column(String(), nullable=False)
     queue = Column(String(), nullable=False)
     status = Column(operation_status, nullable=False)
-    payload = Column(JSON(), nullable=False)
+    payload = Column(JSON(), default={}, nullable=False)
     created_at = Column(TIMESTAMP(False), nullable=False, default=now())
-    updated_at = Column(TIMESTAMP(False), nullable=False, default=now())
+    updated_at = Column(
+        TIMESTAMP(False), nullable=False, default=now(), onupdate=now()
+    )
 
     operation = relationship(Operation, backref=backref('operation'))
