@@ -84,12 +84,18 @@ def run_operation(self, oper_id: str):
     # Execute the command
     if operation.type == 'ping':
         options = operation.options if operation.options else '-c10'
-        cmd = Popen(
-            ['ping', options, operation.target], stdout=PIPE, stderr=PIPE
-        )
+
+        command = ['ping']
+        command.extend(options.split(' '))
+        command.append(operation.target)
     elif operation.type == 'mtr':
-        options = operation.options if operation.options else '-c10 -bzrj'
-        log.info('mtr command')
+        options = (
+            operation.options + ' -j' if operation.options else '-bzrj -c10'
+        )
+
+        command = ['mtr']
+        command.extend(options.split(' '))
+        command.append(operation.target)
     else:
         log.error(
             'Unable to execute %r because is not implemented on this version.',
@@ -99,6 +105,7 @@ def run_operation(self, oper_id: str):
         oper_result.payload = {'cause': 'Non implemented tool on this worker.'}
         return
 
+    cmd = Popen(command, stdout=PIPE, stderr=PIPE)  # Run the command
     timer = time.time()  # Start a timer to log when the command was runned
 
     while cmd.poll() is None:
@@ -111,7 +118,6 @@ def run_operation(self, oper_id: str):
                 operation.type,
             )
             oper_result.status = 'timeout'
-            oper_result.updated_at = now()
             session.add(oper_result)
             session.commit()
             cmd.kill()
@@ -133,7 +139,7 @@ def run_operation(self, oper_id: str):
                 'min': 0,
                 'max': 0,
                 'average': 0,
-                'raw': stdout
+                'raw': stdout,
             }
 
             stdout = stdout[-3:-1]  # Take only summary lines
@@ -143,26 +149,57 @@ def run_operation(self, oper_id: str):
             # Retrieve information from summary line
             for line in summary:
                 if 'transmitted' in line:
-                    db_payload['transmitted'] = re.findall(r'\d+', line)
+                    db_payload['transmitted'] = int(
+                        re.findall(r'\d+', line)[0]
+                    )
                 elif 'received' in line:
-                    db_payload['received'] = re.findall(r'\d+', line)
+                    db_payload['received'] = int(re.findall(r'\d+', line)[0])
                 elif 'duplicates' in line:
-                    db_payload['duplicates'] = re.findall(r'\d+', line)
+                    db_payload['duplicates'] = int(re.findall(r'\d+', line)[0])
                 elif 'packet loss' in line:
-                    db_payload['loss'] = re.findall(r'\d+.\d+|\d+', line)
+                    db_payload['loss'] = float(
+                        re.findall(r'\d+.\d+|\d+', line)[0]
+                    )
 
             # Retrieve informations from stats line
-            db_payload['min'] = stats[0]
-            db_payload['average'] = stats[1]
-            db_payload['max'] = stats[2]
+            db_payload['min'] = float(stats[0])
+            db_payload['average'] = float(stats[1])
+            db_payload['max'] = float(stats[2])
 
             oper_result.status = 'done'
-            oper_result.payload = json.dumps(db_payload)
-            oper_result.updated_at = now()
+            oper_result.payload = db_payload
             session.add(oper_result)
             session.commit()
+        elif operation.type == 'mtr':
+            stdout = cmd.stdout.read().decode('utf-8')
 
-    #     log.info(cmd.stderr.read().decode('utf-8'))
+            try:
+                db_payload = json.loads(stdout)
+                oper_result.status = 'done'
+            except json.JSONDecodeError:
+                db_payload = {
+                    'stdout': stdout,
+                    'stderr': [
+                        'Unable to decode the report because is not '
+                        'a JSON report.'
+                    ],
+                }
+
+            oper_result.payload = db_payload
+            session.add(oper_result)
+            session.commit()
+    else:
+        # Store the stdout and the stderr when the tool exit with a exit code
+        # different of zero.
+        db_payload = {
+            'stdout': cmd.stdout.read().decode('utf-8').split('\n'),
+            'stderr': cmd.stderr.read().decode('utf-8').split('\n'),
+        }
+
+        oper_result.status = 'error'
+        oper_result.payload = db_payload
+        session.add(oper_result)
+        session.commit()
 
 
 @celery_app.task(name='netwark.check_operations_statuses')
@@ -188,7 +225,6 @@ def check_operations_statuses():
                 operation.id,
             )
             operation.status = 'timeout'
-            operation.updated_at = now()
             session.add(operation)
 
     session.commit()
