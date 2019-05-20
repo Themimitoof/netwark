@@ -6,6 +6,7 @@ from celery import Celery
 from pyramid.paster import bootstrap, setup_logging, get_appsettings
 
 from netwark.backend import configure_celery
+from netwark.models import create_engine
 from netwark.helpers.ConfigRegistry import ConfigRegistry
 
 log = logging.getLogger('netwark_worker')
@@ -27,6 +28,9 @@ def main(argv=sys.argv):
     log.info("Starting netwark backend")
     app = Celery(include=['netwark.backend.tasks'])
     configure_celery(app, config.configuration)
+
+    # Configure SQLAlchemy session
+    create_engine('netwark', config.configuration, scoped=True)
 
     # TODO: Make it modifiable with args
     worker_args = ['worker', '--loglevel=INFO', '--beat']

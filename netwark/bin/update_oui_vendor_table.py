@@ -7,7 +7,7 @@ import requests
 from pyramid.paster import bootstrap, setup_logging, get_appsettings
 from sqlalchemy.exc import OperationalError
 
-from netwark.models import OuiVendor, DBSession
+from netwark.models import create_engine, OuiVendor, DBSession
 
 log = logging.getLogger('netwark_update_oui_vendor_table')
 oui_url = 'http://standards-oui.ieee.org/oui/oui.csv'
@@ -65,7 +65,7 @@ def update_database(data: list, settings):
     """
     Updates the OUI vendor table with the new data.
     """
-    session = DBSession(settings)
+    session = DBSession()
 
     for line in data:
         log.info("Merge %s - %s (%s)", line[0], line[1], line[2])
@@ -79,6 +79,8 @@ def main(argv=sys.argv):
     args = parse_args(argv)
     setup_logging(args.config_uri)
     app_settings = get_appsettings(args.config_uri)
+
+    create_engine('netwark', app_settings)
 
     data = retrieve_csv_file()
     update_database(data, app_settings)

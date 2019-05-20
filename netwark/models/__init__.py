@@ -2,10 +2,12 @@ import sys
 import traceback
 import logging
 
-from sqlalchemy import engine_from_config
-from sqlalchemy.orm import sessionmaker, configure_mappers
+from sqlalchemy import event
+from sqlalchemy import engine_from_config, engine
+from sqlalchemy.orm import scoped_session, sessionmaker, configure_mappers
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from pyramid.httpexceptions import HTTPInternalServerError
-import zope.sqlalchemy
+from zope.sqlalchemy import ZopeTransactionExtension
 
 # import or define all models here to ensure they are attached to the
 # Base.metadata prior to any initialization routines
@@ -21,57 +23,61 @@ log = logging.getLogger(__name__)
 configure_mappers()
 
 
-def get_engine(settings, prefix='sqlalchemy.'):
-    return engine_from_config(settings, prefix)
+class Database:
+    databases = {}
+
+    @classmethod
+    def register(cls, name):
+        if name not in cls.databases:
+            cls.databases[name] = Base
+        return cls.databases[name]
+
+    @classmethod
+    def get(cls, name):
+        return cls.databases[name]
 
 
-def get_session_factory(engine):
-    factory = sessionmaker()
-    factory.configure(bind=engine)
-    return factory
+class SessionFactory:
+    sessions = {}
+
+    @classmethod
+    def register(cls, name, scoped):
+        if scoped:
+            cls.sessions[name] = scoped_session(sessionmaker(
+                extension=ZopeTransactionExtension()))
+        else:
+            cls.sessions[name] = sessionmaker()
+        return cls.sessions[name]
+
+    @classmethod
+    def get(cls, name):
+        return cls.sessions[name]
 
 
-def get_tm_session(session_factory, transaction_manager):
-    """
-    Get a ``sqlalchemy.orm.Session`` instance backed by a transaction.
+def create_engine(db_name, settings, prefix='sqlalchemy.', scoped=False):
+    recycle_key = '%spool_recycle' % prefix
+    settings = settings.copy()  # Safe modification
+    settings.setdefault(recycle_key, 1800)
 
-    This function will hook the session to the transaction manager which
-    will take care of committing any changes.
+    ping_conf = '%sping_interval' % prefix
+    ping_interval = int(settings.pop(ping_conf, 60))
 
-    - When using pyramid_tm it will automatically be committed or aborted
-      depending on whether an exception is raised.
+    engine = engine_from_config(settings, prefix, pool_pre_ping=True)
 
-    - When using scripts you should wrap the session in a manager yourself.
-      For example::
+    DBSession = SessionFactory.register(db_name, scoped)
+    DBSession.configure(bind=engine)
+    db = Database.register(db_name)
+    db.metadata.bind = engine
 
-          import transaction
-
-          engine = get_engine(settings)
-          session_factory = get_session_factory(engine)
-          with transaction.manager:
-              dbsession = get_tm_session(session_factory, transaction.manager)
-
-    """
-    dbsession = session_factory()
-    zope.sqlalchemy.register(
-        dbsession, transaction_manager=transaction_manager
-    )
-    return dbsession
+    return engine
 
 
-def DBSession(settings):
-    try:
-        engine = get_engine(settings)
-        engine.connect()  # Test engine connection
+def dispose_engine(db_name):
+    Database.get(db_name).metadata.bind.dispose()
 
-        session_factory = get_session_factory(engine)
-        dbsession = session_factory()
-    except Exception as err:
-        log.critical('Unable to create database session.')
-        traceback.print_exc(file=sys.stdout)
-        raise HTTPInternalServerError()
 
-    return dbsession
+def DBSession():
+    return SessionFactory.get('netwark')()
 
 
 def includeme(config):
@@ -92,6 +98,7 @@ def includeme(config):
 
     # make request.dbsession available for use in Pyramid
     config.add_request_method(
-        # r.tm is the transaction manager used by pyramid_tm
-        lambda r: DBSession(settings), 'dbsession', reify=True
+        lambda r: DBSession(),
+        'dbsession',
+        reify=True,
     )
