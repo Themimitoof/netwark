@@ -56,12 +56,12 @@ class GetCollectionAPIParams(colander.MappingSchema):
     status = colander.SchemaNode(
         colander.String(),
         validator=colander.OneOf(operation_status.enums),  # pylint:disable-all
-        missing=colander.drop,
+        missing=None,
     )
     type = colander.SchemaNode(
         colander.String(),
         validator=colander.OneOf(OPERATION_FLAGS),
-        missing=colander.drop,
+        missing=None,
     )
 
 
@@ -78,9 +78,9 @@ class PostAPIParams(colander.MappingSchema):
         validator=colander.OneOf(OPERATION_FLAGS),  # pylint:disable-all
     )
     target = colander.SchemaNode(colander.String())
-    options = colander.SchemaNode(colander.String(), missing=colander.drop)
+    options = colander.SchemaNode(colander.String(), missing=None)
 
-    @colander.instantiate(name='queues', missing=colander.drop)
+    @colander.instantiate(name='queues', missing=None)
     class QueuesSequence(colander.SequenceSchema):
         _ = colander.SchemaNode(colander.String())
 

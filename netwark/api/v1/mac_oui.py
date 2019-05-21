@@ -57,14 +57,14 @@ def truncate_macaddr(request, **kwargs):
 class GetCollectionAPIParams(colander.MappingSchema):
     assignment = colander.SchemaNode(
         colander.String(),
-        missing=colander.drop,
+        missing=None,
         validator=colander.Regex(mac_like_regex),
     )
-    orgname = colander.SchemaNode(colander.String(), missing=colander.drop)
+    orgname = colander.SchemaNode(colander.String(), missing=None)
 
 
 class GetAPIParams(colander.MappingSchema):
-    resource = colander.SchemaNode(colander.String(), missing=colander.drop)
+    resource = colander.SchemaNode(colander.String(), missing=None)
 
 
 # --- Routes
