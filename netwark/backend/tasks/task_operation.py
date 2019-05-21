@@ -7,7 +7,7 @@ import json
 import re
 
 from subprocess import Popen, PIPE
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import transaction
 
@@ -220,7 +220,9 @@ def check_operations_statuses():
     for operation in query:
         # Not needed to check if entries are on operation_result because, the
         # status is automatically changed on the first execution by a worker.
-        if (operation.updated_at + timedelta(minutes=2)) < datetime.now():
+        updated_at_delta = operation.updated_at + timedelta(minutes=2)
+
+        if datetime.now(timezone.utc) > updated_at_delta:
             log.info(
                 '%r has not been updated for more than 2 minutes.',
                 operation.id,
@@ -229,6 +231,7 @@ def check_operations_statuses():
             session.add(operation)
 
         session.flush()
+    transaction.commit()
 
     # Manage all "in progress" tasks
     operations = session.query(Operation).filter(
@@ -241,15 +244,20 @@ def check_operations_statuses():
         )
 
         still_progress = False
-        last_updated = datetime.now()
+        last_updated = datetime.now(timezone.utc)
 
         for oper in oper_results:
             # If the operation status stalled, updated it.
             # Normally, the backend updated his "updated_at" every 20 seconds
+            updated_at_delta = oper.updated_at + timedelta(minutes=1)
             if (
                 oper.status == 'progress'
-                and oper.updated_at + timedelta(minutes=1) > datetime.now()
+                and datetime.now(timezone.utc) > updated_at_delta
             ):
+                log.info(
+                    'Operation result %r timed out (no update for 1 minute)',
+                    oper.id,
+                )
                 oper.status = 'timeout'
                 session.add(oper)
 
@@ -259,12 +267,36 @@ def check_operations_statuses():
             if oper.updated_at > last_updated:
                 last_updated = oper.updated_at
 
+        last_updated_delta = last_updated + timedelta(minutes=1)
         if (
             not still_progress
-            and last_updated + timedelta(minutes=1) > datetime.now()
+            and datetime.now(timezone.utc) > last_updated_delta
         ):
+            log.info(
+                'Operation %r have not received any update for 1 minute',
+                operation.id,
+            )
             operation.status = 'done'
             session.add(operation)
-            session.flush()
 
+            session.flush()
+    transaction.commit()
+
+    # Cleaning operations results that the operation are not in progress
+    oper_results = session.query(OperationResult).filter(
+        OperationResult.status == 'progress'
+    )
+
+    for oper in oper_results:
+        updated_at_delta = oper.updated_at + timedelta(minutes=1)
+        if datetime.now(timezone.utc) > updated_at_delta:
+            log.info(
+                'Oper result %r have not received any update for 1 minute',
+                oper.id,
+            )
+            oper.status = 'timeout'
+
+            session.add(oper)
+
+    session.flush()
     transaction.commit()
