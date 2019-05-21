@@ -1,44 +1,30 @@
 # Netwark: A Netadmin tool for lazy netadmins
-Netwark was made for all people who want to have a network toolbox in their browser/phone with some additionnal cool stuff like _smokeping_, _multi zone ping_ and _mtr_.
+Netwark is a web-based toolkit for lazy systems and network administrators that want to run parellized tools on multiple servers.
 
-# Getting Started
-- Create a Python virtual environment.
-```bash
-python3 -m venv env
-```
+Netwark can help you to run `ping` or `mtr` on a single machine, all machines of the network or a group of machines. It embed some tools like **IPv4/IPv6 calculator**, **MAC OUI Lookup** and can **WHOIS** _domains, ASN and ip addresses_.
 
-- Upgrade packaging tools.
-```bash
-env/bin/pip install --upgrade pip setuptools
-```
+In the future, it's planned to add more tools and the capability to create _smoke pings_ graphs and alerts.
 
-- Install the project in editable mode with its testing requirements.
-```bash
-env/bin/pip install -e ".[testing]"
-```
+# Deployment informations
+Netwark is completly written in Python using [Pyramid Framework](https://trypyramid.com/), [Cornice](http://cornice.readthedocs.io/), [Celery](https://docs.celeryproject.org/en/latest) and uses PostgreSQL has database.
 
-- Initialize and upgrade the database using Alembic.
-    - Generate your first revision.
-    ```bash
-    env/bin/alembic -c development.ini revision --autogenerate -m "init"
-    ```
+**Requirements:**
+ * **Linux/Unix host**: the server can works on _Windows_ but the worker need some commands that only work on a true _Linux/Unix_ environment (WSL don't allow to play with raw sockets).
+ * **PostgreSQL** 9.5+
+ * **RabbitMQ**
+ * **Node.JS** LTS (only for needed for _npm and gulp_)
 
-    - Upgrade to that revision.
-    ```bash
-    env/bin/alembic -c development.ini upgrade head
-    ```
+You can also deploy Netwark on **Docker** and scale as you want.
 
-- Load default data into the database using a script.
-```bash
-env/bin/initialize_netwark_db development.ini
-```
+For more informations, check the [documentation](https://netwark.readthedocs.io/en/latest/).
 
-- Run your project's tests.
-```bash
-env/bin/pytest
-```
+# Documentation
+The installation and configuration instructions are available on our documentation page on: [https://netwark.readthedocs.io/en/latest/](https://netwark.readthedocs.io/en/latest/).
 
-- Run your project.
-```bash
-env/bin/pserve development.ini
-```
+
+# Contributions
+Netwark is free and open source software licensed under **MIT** license.
+
+You can open issues to report a bug, suggest a new feature/enhancement or open a pull request to contribute to the codebase.
+
+Please ensure you have [black](https://github.com/python/black), [pylint](https://github.com/PyCQA/pylint), [pycodestyle](https://github.com/PyCQA/pycodestyle) and [eslint](https://github.com/eslint/eslint) installed on your machine and ensure that no errors are returned by theses tools. Please create or adapt tests units for all your modifications.
