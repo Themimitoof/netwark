@@ -33,6 +33,7 @@ pytest-cov = "^2.6"
 WebTest = "^2.0"
 sphinx-rtd-theme = "^0.4.3"
 sphinx = "^1.8"
+cornice_sphinx = "^0.3.0"
 
 [tool.black]
 line-length = 79

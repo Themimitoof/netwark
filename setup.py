@@ -20,7 +20,8 @@ requires = [
     'zope.sqlalchemy',
     'celery',
     'geoip2',
-    'idna'
+    'idna',
+    'pyyaml'
 ]
 
 dev_require = [
@@ -30,6 +31,7 @@ dev_require = [
     'pycodestyle',
     'sphinx',
     'sphinc-rtd-theme',
+    'cornice_sphinx',
     'black',
 ]
 
