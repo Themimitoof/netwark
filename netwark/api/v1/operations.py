@@ -3,6 +3,8 @@ import traceback
 import logging
 
 import colander
+import transaction
+
 from pyramid.exceptions import HTTPBadRequest, HTTPNotFound
 from pyramid.httpexceptions import HTTPInternalServerError
 from cornice.resource import resource, view
@@ -15,7 +17,7 @@ from cornice.validators import (
 from .. import APIBase
 from ..context import APIContext
 from netwark import celery_app
-from netwark.models import Operation, OperationResult
+from netwark.models import DBSession, Operation, OperationResult
 from netwark.models.operation import OPERATION_FLAGS, operation_status
 from netwark.backend import is_broker_available
 from netwark.backend.tasks import run_operation
@@ -98,7 +100,7 @@ class ApiOperations(APIBase):
     )
     def collection_get(self):
         params = self.request.validated
-        session = self.request.dbsession
+        session = DBSession()
 
         query = session.query(Operation).order_by(Operation.created_at.desc())
 
@@ -124,7 +126,7 @@ class ApiOperations(APIBase):
         """
         params = self.request.validated
         operation = params['operation']
-        session = self.request.dbsession
+        session = DBSession()
 
         # Retrieve operation results
         operation_results = (
@@ -166,7 +168,9 @@ class ApiOperations(APIBase):
         TODO: For queues, use the dict for matching with existing queues
         """
         params = self.request.validated
-        session = self.request.dbsession
+        session = DBSession()
+
+        transaction.begin()
 
         operation = Operation(
             type=params['type'], target=params['target'], status='pending'
@@ -193,7 +197,15 @@ class ApiOperations(APIBase):
             log.info('Create new operation %r', operation)
             try:
                 session.add(operation)
-                session.commit()
+                session.flush()
+
+                oper_id = operation.id
+                transaction.commit()  # Commit because we will push ids to
+                # the celery workers
+
+                operation = session.query(Operation).filter(
+                    Operation.id == oper_id
+                ).first()
 
                 # Push the task into the queue
                 queues = operation.queues.split(',')
@@ -216,7 +228,7 @@ class ApiOperations(APIBase):
                     'was occured with the broker.'
                 )
                 traceback.print_exc(file=sys.stdout)
-                session.rollback()
+                transaction.abort()
                 raise HTTPInternalServerError
         else:
             raise HTTPInternalServerError

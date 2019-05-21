@@ -7,6 +7,7 @@ from celery import Celery
 
 from .events import flash_messages
 from .backend import configure_celery
+from .models import create_engine
 from .models.operation import OPERATION_FLAGS
 
 log = logging.getLogger(__name__)
@@ -24,6 +25,9 @@ def main(global_config, **settings):
         config.include('.geoip')
         config.include('.routes')
         config.include('.api.v1')
+
+        # Configure SQLAlchemy session
+        create_engine('netwark', settings, scoped=True)
 
         # Configure session factory
         log.debug('Configuring the session factory...')
