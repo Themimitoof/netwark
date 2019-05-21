@@ -31,7 +31,7 @@ def load_operation(request, **kwargs):
     Load the operation informations from the database
     """
     params = request.validated
-    session = DBSession(request.registry.settings)
+    session = DBSession()
 
     operation = (
         session.query(Operation)
@@ -56,12 +56,12 @@ class GetCollectionAPIParams(colander.MappingSchema):
     status = colander.SchemaNode(
         colander.String(),
         validator=colander.OneOf(operation_status.enums),  # pylint:disable-all
-        missing=None,
+        missing=colander.drop,
     )
     type = colander.SchemaNode(
         colander.String(),
         validator=colander.OneOf(OPERATION_FLAGS),
-        missing=None,
+        missing=colander.drop,
     )
 
 
@@ -78,9 +78,9 @@ class PostAPIParams(colander.MappingSchema):
         validator=colander.OneOf(OPERATION_FLAGS),  # pylint:disable-all
     )
     target = colander.SchemaNode(colander.String())
-    options = colander.SchemaNode(colander.String(), missing=None)
+    options = colander.SchemaNode(colander.String(), missing=colander.drop)
 
-    @colander.instantiate(name='queues', missing=None)
+    @colander.instantiate(name='queues', missing=colander.drop)
     class QueuesSequence(colander.SequenceSchema):
         _ = colander.SchemaNode(colander.String())
 
@@ -131,7 +131,7 @@ class ApiOperations(APIBase):
         # Retrieve operation results
         operation_results = (
             session.query(OperationResult)
-            .filter(OperationResult.operation_id == Operation.id)
+            .filter(OperationResult.operation_id == operation.id)
             .all()
         )
 
