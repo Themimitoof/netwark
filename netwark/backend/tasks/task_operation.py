@@ -9,10 +9,11 @@ import re
 from subprocess import Popen, PIPE
 from datetime import datetime, timedelta
 
+import transaction
+
 from sqlalchemy.sql.functions import now
 
 from netwark import celery_app
-from netwark.helpers.ConfigRegistry import ConfigRegistry
 from netwark.models import DBSession, Operation, OperationResult
 from netwark.backend import hostname
 
@@ -21,8 +22,7 @@ log = logging.getLogger(__name__)
 
 @celery_app.task(name='netwark.operation', bind=True)
 def run_operation(self, oper_id: str):
-    config = ConfigRegistry('netwark.app')
-    session = DBSession(config.configuration)
+    session = DBSession()
 
     log.info('Running task for the operation %r', oper_id)
 
@@ -185,6 +185,8 @@ def run_operation(self, oper_id: str):
                     ],
                 }
 
+                oper_result.payload = 'error'
+
             oper_result.payload = db_payload
             session.add(oper_result)
             session.commit()
@@ -208,8 +210,7 @@ def check_operations_statuses():
     Check the status of all operations and update it if is too old or all
     workers have not sent any data for more than 45 seconds.
     """
-    config = ConfigRegistry('netwark.app')
-    session = DBSession(config.configuration)
+    session = DBSession()
 
     log.info('Start checking operations statuses...')
 
@@ -227,9 +228,43 @@ def check_operations_statuses():
             operation.status = 'timeout'
             session.add(operation)
 
-    session.commit()
+        session.flush()
 
     # Manage all "in progress" tasks
-    # query = session.query(Operation).filter(Operation.status == 'progress')
+    operations = session.query(Operation).filter(
+        Operation.status == 'progress'
+    )
 
-    # for operation in query:
+    for operation in operations:
+        oper_results = session.query(OperationResult).filter(
+            OperationResult.operation_id == operation.id
+        )
+
+        still_progress = False
+        last_updated = datetime.now()
+
+        for oper in oper_results:
+            # If the operation status stalled, updated it.
+            # Normally, the backend updated his "updated_at" every 20 seconds
+            if (
+                oper.status == 'progress'
+                and oper.updated_at + timedelta(minutes=1) > datetime.now()
+            ):
+                oper.status = 'timeout'
+                session.add(oper)
+
+            if oper.status == 'progress':
+                still_progress = True
+
+            if oper.updated_at > last_updated:
+                last_updated = oper.updated_at
+
+        if (
+            not still_progress
+            and last_updated + timedelta(minutes=1) > datetime.now()
+        ):
+            operation.status = 'done'
+            session.add(operation)
+            session.flush()
+
+    transaction.commit()
