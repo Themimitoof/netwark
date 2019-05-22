@@ -1,0 +1,129 @@
+extends ../layout/main
+
+block content
+    //- TODO: Change the background with the color associated to the tag label
+    .operations-infos-bar.siimple--bg-light.siimple--color-dark
+        .infos
+            ul
+                li Tool: &nbsp;
+                    kbd= data['operation']['type']
+                li Target: &nbsp;
+                    a(href="/tools/whois/"+data['operation']['target'])
+                        i= data['operation']['target']
+
+            ul
+                li Queues: &nbsp;
+                    kbd netwark, broadcast, lc_pa2
+                li Options: &nbsp;
+                    kbd= data['operation']['options']
+
+            ul
+                li Created at: &nbsp;
+                    i= data['operation']['created_at']
+                li Last updated: &nbsp;
+                    i= data['operation']['updated_at']
+
+            ul
+                li Status:
+                    if data['operation']['status'] == 'pending'
+                        .siimple-tag.siimple-tag--light Pending
+                    elif data['operation']['status'] == 'progress'
+                        .siimple-tag.siimple-tag--primary In progress
+                    elif data['operation']['status'] == 'timeout'
+                        .siimple-tag.siimple-tag--warning Timeout
+                    elif data['operation']['status'] == 'error'
+                        .siimple-tag.siimple-tag--error Error
+                    elif data['operation']['status'] == 'done'
+                        .siimple-tag.siimple-tag--success Finished
+                    else
+                        .siimple-tag.siimple-tag--dark Unknown
+                li Last refresh: &nbsp;
+                    i 10 seconds ago
+
+    .container
+        each queue in data['results'].keys()
+            .operation-queue-result
+                .queue-name= queue
+
+                each result in data['results'][queue]
+                    .operation-result
+                        .result-header
+                            span.worker= result.worker
+
+                            .status-tag
+                                if result.status == 'progress'
+                                    .siimple-tag.siimple-tag--primary In progress
+                                elif result.status == 'timeout'
+                                    .siimple-tag.siimple-tag--warning Timeout
+                                elif result.status == 'error'
+                                    .siimple-tag.siimple-tag--error Error
+                                elif result.status == 'done'
+                                    .siimple-tag.siimple-tag--success Finished
+                                else
+                                    .siimple-tag.siimple-tag--dark Unknown
+
+                            a.collapse-btn()
+                                i.icon.icon-chevron-down
+                        .result-body
+                            .metadata
+
+                                ul
+                                    li Created at: &nbsp;
+                                        i= result.created_at
+                                    li Updated at: &nbsp;
+                                        i= result.updated_at
+
+                            if result.status == 'done'
+                                if data['operation']['type'] == 'ping'
+                                    //- TODO: Get data from raw infos and show it here
+
+                                    h3 Raw output
+                                    .raw-output
+                                        each line in result.payload['raw']
+                                            p= line
+
+                                    //- Show the result in a table
+                                    h3 Results
+                                    .siimple-table
+                                        .siimple-table-header
+                                            .siimple-table-row
+                                                .siimple-table-cell Transmitted
+                                                .siimple-table-cell Received
+                                                .siimple-table-cell Duplicates
+                                                .siimple-table-cell Loss
+                                                .siimple-table-cell Minimum latency
+                                                .siimple-table-cell Maximum latency
+                                                .siimple-table-cell Average latency
+                                        .siimple-table-body
+                                            .siimple-table-row
+                                                .siimple-table-cell= result.payload['transmitted']
+                                                .siimple-table-cell= result.payload['received']
+                                                .siimple-table-cell
+                                                    if result.payload['duplicates'] == 0
+                                                        | 0
+                                                    else
+                                                        b !{result.payload['duplicates']} (!)
+                                                .siimple-table-cell
+                                                    if result.payload['loss'] == 0
+                                                        | !{result.payload['loss']} %
+                                                    else
+                                                        b !{result.payload['loss']} %
+                                                .siimple-table-cell !{result.payload['min']} ms
+                                                .siimple-table-cell !{result.payload['max']} ms
+                                                .siimple-table-cell !{result.payload['average']} ms
+
+                                elif data['operation']['type'] == 'mtr'
+                                    p Hey je suis un mtr lol!
+
+
+                            elif result.status == 'timeout'
+                                i The worker has not updated his task or the process has taken more time than is allowed.
+                            elif result.status == 'progress'
+                                i Awaiting a result from the worker...
+
+                            elif result.status == 'error'
+                                if data['operation']['type'] == 'ping'
+                                    p Hey yo je suis un ping!
+                                elif data['operation']['type'] == 'mtr'
+                                    p Hey je suis un mtr lol!
+

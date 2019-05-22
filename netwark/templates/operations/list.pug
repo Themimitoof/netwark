@@ -2,7 +2,22 @@ extends ../layout/main
 
 block content
     .container
-        h1 List of operations (total: !{len(data)})
+        h1 List of operations
+
+        .flash-alerts
+            //- Flash messages management
+            each flash in siteOptions['flash']
+                if flash['type'] == 'invalid_uuid'
+                    message = 'The specified operation identifier is not a valid UUID.'
+                    classes = 'siimple-tip--error siimple-tip--exclamation'
+                elif flash['type'] == 'oper_not_found'
+                    message = 'The requested operation not exists.'
+                    classes = 'siimple-tip--warning siimple-tip--exclamation'
+                else
+                    message = 'An error is happened on processing the request'
+                    classes = 'siimple-tip--warning siimple-tip--exclamation'
+
+                div(class="siimple-tip "+classes)!= message
 
         .siimple-table.siimple-table--striped.siimple-table--hover
             .siimple-table-header

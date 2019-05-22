@@ -8,3 +8,116 @@
         padding-right: 15px;
     }
 }
+
+.operations-infos-bar {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+
+    & > .infos {
+        width: 90%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+
+        & > ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        & > ul > li {
+            margin-bottom: 15px;
+            text-overflow: ellipsis;
+        }
+
+        & > ul:last-child {
+            margin-right: 30px;
+        }
+
+        & kbd {
+            background-color: #f8f8f8;
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 2px;
+        }
+    }
+}
+
+.operation-queue-result {
+    border: 1px solid #cbd8e6;
+
+    & > .queue-name {
+        border-bottom: 2px solid #cbd8e6;
+        padding: 15px 10px;
+        font-size: 18px;
+        font-weight: lighter;
+        text-transform: capitalize;
+        color: #778695;
+    }
+}
+
+.operation-result {
+    & > .result-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        & > span.worker {
+            flex-grow: 1;
+            padding-left: 10px;
+            text-overflow: ellipsis;
+        }
+
+        & > .status-tag {
+            padding: 0 10px;
+        }
+
+        & > a.collapse-btn {
+            padding: 14px;
+            color: #fff;
+            background-color: #778695;
+            cursor: pointer;
+        }
+    }
+
+    & > .result-header:hover,
+    & > .result-header:focus {
+        background-color: #eef2f7cc;
+    }
+
+
+    & > .result-body {
+        padding: 10px;
+
+        & > .metadata {
+            display: flex;
+            flex-direction: row;
+            background-color: #eef2f7cc;
+
+            margin: -10px;
+            margin-bottom: 20px;
+            padding: 10px;
+
+            & > ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+        }
+
+        & > .raw-output {
+            background-color: #f8f8f8;
+            padding: 8px;
+
+            p {
+                margin: 3px 0;
+            }
+
+            p:hover {
+                background-color: #eee;
+            }
+        }
+    }
+}
