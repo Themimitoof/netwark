@@ -14,7 +14,7 @@ import transaction
 from sqlalchemy.sql.functions import now
 
 from netwark import celery_app
-from netwark.models import DBSession, Operation, OperationResult
+from netwark.models import DBSession, Operation, OperationResult, gen_uuid
 from netwark.backend import hostname
 
 log = logging.getLogger(__name__)
@@ -57,8 +57,12 @@ def run_operation(self, oper_id: str):
     # Update the operation status if is still in pending
     if operation.status == 'pending':
         operation.status = 'progress'
+
+        oper_id = operation.id
+        oper_type = operation.type
         session.add(operation)
-        session.commit()
+        session.flush()
+        transaction.commit()
     elif operation.status in ['timeout', 'error', 'done']:
         return
 
@@ -73,13 +77,22 @@ def run_operation(self, oper_id: str):
 
     # Create the worker entry in operation_result table
     oper_result = OperationResult(
-        operation_id=operation.id,
+        id=gen_uuid(),
+        operation_id=oper_id,
         worker=hostname,
         queue=queue,
-        status='progress',
+        status='progress'
     )
+    oper_result_id = oper_result.id
+
+    # Commit the transaction for giving a feedback to the front
     session.add(oper_result)
-    session.commit()
+    session.flush()
+    transaction.commit()
+
+    operation = (
+        session.query(Operation).filter(Operation.id == oper_id).first()
+    )
 
     # Execute the command
     if operation.type == 'ping':
@@ -101,35 +114,57 @@ def run_operation(self, oper_id: str):
             'Unable to execute %r because is not implemented on this version.',
             operation.type,
         )
-        oper_result.status = 'error'
-        oper_result.payload = {'cause': 'Non implemented tool on this worker.'}
+
+        oper = session.query(OperationResult).filter(
+            OperationResult.id == oper_result_id
+        ).first()
+        oper.status = 'error'
+        oper.payload = {'cause': 'Tool not available on this worker.'}
+
+        session.add(oper)
+        session.flush()
+        transaction.commit()
         return
 
     cmd = Popen(command, stdout=PIPE, stderr=PIPE)  # Run the command
-    timer = time.time()  # Start a timer to log when the command was runned
+    timeout_timer = time.time()
+    update_timer = time.time()
 
     while cmd.poll() is None:
         # Put the task in timeout if is running more than 2 minutes or
         # update `updated_at` date every each 20 seconds
-        if timer - time.time() >= 120:
+        if time.time() - timeout_timer >= 30:
             log.info(
                 '%r is running since more than 2 minutes. Stop his '
                 'execution.',
-                operation.type,
+                oper_type,
             )
-            oper_result.status = 'timeout'
-            session.add(oper_result)
-            session.commit()
+
+            oper = session.query(OperationResult).filter(
+                OperationResult.id == oper_result_id
+            ).first()
+            oper.status = 'timeout'
+
+            session.add(oper)
+            session.flush()
+            transaction.commit()
             cmd.kill()
-        elif timer - time.time() >= 20:
-            oper_result.updated_at = now()
-            session.add(oper_result)
-            session.commit()
+            return
+        elif time.time() - update_timer >= 20:
+            update_timer = time.time()  # Reset the timer
+            oper = session.query(OperationResult).filter(
+                OperationResult.id == oper_result_id
+            ).first()
+            oper.updated_at = now()
+
+            session.add(oper)
+            session.flush()
+            transaction.commit()
 
         time.sleep(2)
 
     if cmd.returncode == 0:
-        if operation.type == 'ping':
+        if oper_type == 'ping':
             stdout = cmd.stdout.read().decode('utf-8').split('\n')
             db_payload = {
                 'transmitted': 0,
@@ -166,16 +201,21 @@ def run_operation(self, oper_id: str):
             db_payload['average'] = float(stats[1])
             db_payload['max'] = float(stats[2])
 
-            oper_result.status = 'done'
-            oper_result.payload = db_payload
-            session.add(oper_result)
-            session.commit()
-        elif operation.type == 'mtr':
+            oper = session.query(OperationResult).filter(
+                OperationResult.id == oper_result_id
+            ).first()
+            oper.status = 'done'
+            oper.payload = db_payload
+
+            session.add(oper)
+            session.flush()
+            transaction.commit()
+        elif oper_type == 'mtr':
             stdout = cmd.stdout.read().decode('utf-8')
 
             try:
                 db_payload = json.loads(stdout)
-                oper_result.status = 'done'
+                result_status = 'done'
             except json.JSONDecodeError:
                 db_payload = {
                     'stdout': stdout,
@@ -185,11 +225,17 @@ def run_operation(self, oper_id: str):
                     ],
                 }
 
-                oper_result.payload = 'error'
+                result_status = 'error'
 
-            oper_result.payload = db_payload
-            session.add(oper_result)
-            session.commit()
+            oper = session.query(OperationResult).filter(
+                OperationResult.id == oper_result_id
+            ).first()
+            oper.status = result_status
+            oper.payload = db_payload
+
+            session.add(oper)
+            session.flush()
+            transaction.commit()
     else:
         # Store the stdout and the stderr when the tool exit with a exit code
         # different of zero.
@@ -198,10 +244,15 @@ def run_operation(self, oper_id: str):
             'stderr': cmd.stderr.read().decode('utf-8').split('\n'),
         }
 
-        oper_result.status = 'error'
-        oper_result.payload = db_payload
-        session.add(oper_result)
-        session.commit()
+        oper = session.query(OperationResult).filter(
+            OperationResult.id == oper_result_id
+        ).first()
+        oper.status = 'error'
+        oper.payload = db_payload
+
+        session.add(oper)
+        session.flush()
+        transaction.commit()
 
 
 @celery_app.task(name='netwark.check_operations_statuses')
@@ -222,7 +273,7 @@ def check_operations_statuses():
         # status is automatically changed on the first execution by a worker.
         updated_at_delta = operation.updated_at + timedelta(minutes=2)
 
-        if datetime.now(timezone.utc) > updated_at_delta:
+        if datetime.utcnow() > updated_at_delta:
             log.info(
                 '%r has not been updated for more than 2 minutes.',
                 operation.id,
@@ -230,7 +281,7 @@ def check_operations_statuses():
             operation.status = 'timeout'
             session.add(operation)
 
-        session.flush()
+    session.flush()
     transaction.commit()
 
     # Manage all "in progress" tasks
@@ -244,7 +295,7 @@ def check_operations_statuses():
         )
 
         still_progress = False
-        last_updated = datetime.now(timezone.utc)
+        last_updated = datetime.utcnow()
 
         for oper in oper_results:
             # If the operation status stalled, updated it.
@@ -252,7 +303,7 @@ def check_operations_statuses():
             updated_at_delta = oper.updated_at + timedelta(minutes=1)
             if (
                 oper.status == 'progress'
-                and datetime.now(timezone.utc) > updated_at_delta
+                and datetime.utcnow() > updated_at_delta
             ):
                 log.info(
                     'Operation result %r timed out (no update for 1 minute)',
@@ -270,7 +321,7 @@ def check_operations_statuses():
         last_updated_delta = last_updated + timedelta(minutes=1)
         if (
             not still_progress
-            and datetime.now(timezone.utc) > last_updated_delta
+            and datetime.utcnow() > last_updated_delta
         ):
             log.info(
                 'Operation %r have not received any update for 1 minute',
@@ -279,7 +330,7 @@ def check_operations_statuses():
             operation.status = 'done'
             session.add(operation)
 
-            session.flush()
+    session.flush()
     transaction.commit()
 
     # Cleaning operations results that the operation are not in progress
@@ -289,7 +340,7 @@ def check_operations_statuses():
 
     for oper in oper_results:
         updated_at_delta = oper.updated_at + timedelta(minutes=1)
-        if datetime.now(timezone.utc) > updated_at_delta:
+        if datetime.utcnow() > updated_at_delta:
             log.info(
                 'Oper result %r have not received any update for 1 minute',
                 oper.id,
