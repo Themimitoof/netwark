@@ -2,7 +2,7 @@ extends ../layout/main
 
 block content
     //- TODO: Change the background with the color associated to the tag label
-    .operations-infos-bar.siimple--bg-light.siimple--color-dark
+    .operations-infos-bar.siimple--bg-light.siimple--color-dark(operation-status=data['operation']['status'])
         .infos
             ul
                 li Tool: &nbsp;
@@ -24,19 +24,19 @@ block content
                     i= data['operation']['updated_at']
 
             ul
-                li Status:
+                li Status: &nbsp;
                     if data['operation']['status'] == 'pending'
-                        .siimple-tag.siimple-tag--light Pending
+                        i Pending
                     elif data['operation']['status'] == 'progress'
-                        .siimple-tag.siimple-tag--primary In progress
+                        i In progress
                     elif data['operation']['status'] == 'timeout'
-                        .siimple-tag.siimple-tag--warning Timeout
+                        i Timeout
                     elif data['operation']['status'] == 'error'
-                        .siimple-tag.siimple-tag--error Error
+                        i Error
                     elif data['operation']['status'] == 'done'
-                        .siimple-tag.siimple-tag--success Finished
+                        i Finished
                     else
-                        .siimple-tag.siimple-tag--dark Unknown
+                        i Unknown
                 li Last refresh: &nbsp;
                     i 10 seconds ago
 
@@ -66,7 +66,6 @@ block content
                                 i.icon.icon-chevron-down
                         .result-body
                             .metadata
-
                                 ul
                                     li Created at: &nbsp;
                                         i= result.created_at
@@ -113,8 +112,45 @@ block content
                                                 .siimple-table-cell !{result.payload['average']} ms
 
                                 elif data['operation']['type'] == 'mtr'
-                                    p Hey je suis un mtr lol!
+                                    .timeline
+                                        each hub in result.payload['report']['hubs']
+                                            .timeline-node
+                                                span.hostname !{hub['host']} [!{hub['ASN']}]
 
+                                                .siimple-table
+                                                    .siimple-table-header
+                                                        .siimple-table-row
+                                                            .siimple-table-cell Minimum latency
+                                                            .siimple-table-cell Maximum latency
+                                                            .siimple-table-cell Average latency
+                                                            .siimple-table-cell Last packet latency
+                                                            .siimple-table-cell Loss
+                                                    .siimple-table-body
+                                                        .siimple-table-row
+                                                            .siimple-table-cell !{hub['Best']} ms
+                                                            .siimple-table-cell !{hub['Wrst']} ms
+                                                            .siimple-table-cell !{hub['Avg']} ms
+                                                            .siimple-table-cell !{hub['Last']} ms
+                                                            .siimple-table-cell
+                                                                if hub['Loss%'] == 0
+                                                                    | !{hub['Loss%']} %
+                                                                else
+                                                                    b !{hub['Loss%']} %
+                                                    //- ul
+                                                    //-     li Minimum latency: &nbsp;
+                                                    //-         i !{hub['Best']} ms
+                                                    //-     li Maximum latency: &nbsp;
+                                                    //-         i !{hub['Wrst']} ms
+
+                                                    //- ul
+                                                    //-     li Average: &nbsp;
+                                                    //-         i !{hub['Avg']} ms
+                                                    //-     li Loss: &nbsp;
+                                                    //-         if hub['Loss%'] == 0
+                                                    //-             i !{hub['Loss%']} %
+                                                    //-         else
+                                                    //-             i
+                                                    //-                 b !{hub['Loss%']} %
 
                             elif result.status == 'timeout'
                                 i The worker has not updated his task or the process has taken more time than is allowed.
@@ -122,8 +158,10 @@ block content
                                 i Awaiting a result from the worker...
 
                             elif result.status == 'error'
-                                if data['operation']['type'] == 'ping'
-                                    p Hey yo je suis un ping!
-                                elif data['operation']['type'] == 'mtr'
-                                    p Hey je suis un mtr lol!
-
+                                if 'cause' in result.payload
+                                    i= result.payload['cause']
+                                else
+                                    h3 Error output
+                                    .raw-output
+                                        each line in result.payload['stderr']
+                                            p= line

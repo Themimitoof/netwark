@@ -88,9 +88,10 @@ def operations_info_view(request):
         results[result.queue].append(result)
 
     return {
-        'siteOptions': {'pageTitle': 'Overview'},
-        'data': {
-            'operation': operation.to_dict(),
-            'results': results
+        'siteOptions': {
+            'pageTitle': 'Overview of the operation ({} - {})'.format(
+                operation.type, operation.target
+            )
         },
+        'data': {'operation': operation.to_dict(), 'results': results},
     }
