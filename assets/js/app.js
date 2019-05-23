@@ -138,8 +138,8 @@ if(document.querySelector(".search-box#whois-search-box") != null) {
         button.firstChild.textContent = "Search " + search.value;
 
         // Check if the resource is valid
-        if(validators.valid_whois_resource(search.value)) button.classList.remove('.siimple-btn--disabled');
-        else button.classList.remove('.siimple-btn--disabled');
+        if(validators.valid_whois_resource(search.value)) button.classList.remove('siimple-btn--disabled');
+        else button.classList.add('siimple-btn--disabled');
     });
 
 

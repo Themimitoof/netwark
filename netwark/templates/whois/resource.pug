@@ -70,18 +70,34 @@ block content
                                                     i #{data['location'].location.latitude}, #{data['location'].location.longitude}
 
                                         if data['type'] == 'domain'
-                                            tr
-                                                td Registrar
-                                                td
-                                                    i _Organization_
+                                            if 'registrar' in data['infos']
+                                                tr
+                                                    td Registrar
+                                                    td
+                                                        i= data['infos']['registrar']
+
+                                            if 'creation_date' in data['infos']
+                                                tr
+                                                    td Creation date
+                                                    td
+                                                        i= data['infos']['creation_date']
+
+                                            if 'updated_date' in data['infos']
+                                                tr
+                                                    td Updated date
+                                                    td
+                                                        i= data['infos']['updated_date']
+
+                                            if 'nameservers' in data['infos']
+                                                tr
+                                                    td Nameservers
+                                                    td
+                                                        i= ', '.join(data['infos']['nameservers'])
 
                     .siimple-grid-col.siimple-grid-col--7.siimple-grid-col--md-12
                         .siimple-tabs.siimple-tabs--boxed#whois-tabs(tabs-control="whois-tabs-control")
                             if 'location' in data
                                 .siimple-tabs-item.siimple-tabs-item--selected(tab-block="geo") Geographic informations
-
-                            if data['type'] == 'domain'
-                                .siimple-tabs-item.siimple-tabs-item--selected(tab-block="zone") Zone informations
 
                             .siimple-tabs-item(tab-block="raw") Raw WHOIS
 
@@ -89,10 +105,6 @@ block content
                             if 'location' in data
                                 .tabs-block#geo
                                     .map#geo-map(style="height:400px")
-
-                            if data['type'] == 'domain'
-                                .tabs-block#zone
-                                    p zone
 
                             .tabs-block#raw
                                 .whois-block

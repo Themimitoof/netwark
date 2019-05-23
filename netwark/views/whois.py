@@ -10,7 +10,7 @@ from geoip2.database import Reader as geoip_reader
 from sqlalchemy.exc import DBAPIError
 
 from .. import models
-from ..helpers import ip, asn
+from ..helpers import ip, asn, domain
 
 log = logging.getLogger(__name__)
 
@@ -34,6 +34,8 @@ def whois_resource_view(request: Request):
         resource = resource.upper()
     # TODO: Add a validator or a regex for validating IDNs before
     # checking if is an ip address.
+    elif domain.is_valid_fqdn(domain.to_idna(resource)):
+        resource_type = 'domain'
     elif ip.is_ip(resource):
         resource_type = 'ip'
     else:
@@ -67,6 +69,9 @@ def whois_resource_view(request: Request):
         data['asn'] = infos['asn']
         data['as_name'] = infos['name']
         data['organization'] = infos['org']
+    elif resource_type == 'domain':
+        data['whois_raw'] = domain.get_whois(resource)
+        data['infos'] = domain.get_infos(data['whois_raw'])
 
     return {
         'siteOptions': {'pageTitle': "Result of '{}'".format(resource)},
