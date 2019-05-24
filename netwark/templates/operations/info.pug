@@ -1,7 +1,6 @@
 extends ../layout/main
 
 block content
-    //- TODO: Change the background with the color associated to the tag label
     .operations-infos-bar.siimple--bg-light.siimple--color-dark(operation-status=data['operation']['status'])
         .infos
             ul
@@ -37,8 +36,6 @@ block content
                         i Finished
                     else
                         i Unknown
-                li Last refresh: &nbsp;
-                    i 10 seconds ago
 
     .container
         each queue in data['results'].keys()
@@ -136,21 +133,6 @@ block content
                                                                     | !{hub['Loss%']} %
                                                                 else
                                                                     b !{hub['Loss%']} %
-                                                    //- ul
-                                                    //-     li Minimum latency: &nbsp;
-                                                    //-         i !{hub['Best']} ms
-                                                    //-     li Maximum latency: &nbsp;
-                                                    //-         i !{hub['Wrst']} ms
-
-                                                    //- ul
-                                                    //-     li Average: &nbsp;
-                                                    //-         i !{hub['Avg']} ms
-                                                    //-     li Loss: &nbsp;
-                                                    //-         if hub['Loss%'] == 0
-                                                    //-             i !{hub['Loss%']} %
-                                                    //-         else
-                                                    //-             i
-                                                    //-                 b !{hub['Loss%']} %
 
                             elif result.status == 'timeout'
                                 i The worker has not updated his task or the process has taken more time than is allowed.

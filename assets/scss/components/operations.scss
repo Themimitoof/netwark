@@ -43,6 +43,11 @@
             border-radius: 2px;
         }
     }
+
+    &.siimple--color-light kbd {
+        background-color: #4e4e4e;
+        color: #dde5ee;
+    }
 }
 
 .operation-queue-result {

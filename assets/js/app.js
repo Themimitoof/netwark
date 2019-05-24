@@ -365,6 +365,50 @@ if(document.querySelector("#ipcalc-form") != null) {
     });
 }
 
+/**
+ * Operation page
+ */
+if(document.querySelector(".operations-infos-bar") != null) {
+    let infobar = document.querySelector(".operations-infos-bar");
+    let oper_status = infobar.getAttribute("operation-status");
+
+    switch(oper_status) {
+        case "pending":
+            infobar.setAttribute("class", "operations-infos-bar");
+            infobar.classList.add(...["siimple--bg-light", "siimple--color-dark"]);
+            break;
+
+        case "progress":
+            infobar.setAttribute("class", "operations-infos-bar");
+            infobar.classList.add(...["siimple--bg-primary", "siimple--color-light"]);
+
+            // Set a timeout for refreshing the page every 10 seconds
+            setTimeout(() => location.reload(), 10000);
+            break;
+
+        case "timeout":
+            infobar.setAttribute("class", "operations-infos-bar");
+            infobar.classList.add(...["siimple--bg-warning", "siimple--color-dark"]);
+            break;
+
+        case "error":
+            infobar.setAttribute("class", "operations-infos-bar");
+            infobar.classList.add(...["siimple--bg-error", "siimple--color-light"]);
+            break;
+
+        case "done":
+            infobar.setAttribute("class", "operations-infos-bar");
+            infobar.classList.add(...["siimple--bg-success", "siimple--color-light"]);
+            break;
+
+        default:
+            infobar.setAttribute("class", "operations-infos-bar");
+            infobar.classList.add(...["siimple--bg-light", "siimple--color-dark"]);
+            break;
+    }
+
+}
+
 // Generate leaflet if available
 /**
  *
