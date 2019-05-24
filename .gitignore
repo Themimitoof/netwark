@@ -30,3 +30,4 @@ maxmind_db/
 .mapbox-token
 docs/_build/
 docker/data/
+celerybeat-schedule

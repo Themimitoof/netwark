@@ -1,20 +1,31 @@
-FROM python:3.7-alpine
+FROM node:lts-alpine AS build-env
 
 COPY . /opt/netwark
 WORKDIR /opt/netwark
 
-RUN python -m venv /opt/netwark-venv && \
-    source /opt/netwark-venv/bin/activate
+RUN npm i && \
+    ./node_modules/.bin/gulp
 
-RUN apk add --no-cache postgresql-client postgresql-libs && \
+FROM python:3.7-alpine
+
+COPY . /opt/netwark
+COPY --from=build-env /opt/netwark/dist /opt/netwark/dist
+WORKDIR /opt/netwark
+
+RUN apk add --no-cache postgresql-client postgresql-libs bash mtr && \
     apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev && \
-    /opt/netwark-venv/bin/pip install poetry && \
-    /opt/netwark-venv/bin/poetry install --no-dev
+    pip install poetry
+
 
 RUN cp docker/entrypoint.sh /entrypoint.sh && \
     chmod +x /entrypoint.sh && \
     chown root:root /entrypoint.sh
 
-ENTRYPOINT "/entrypoint.sh"
+RUN addgroup -g 1100 netwark && \
+    adduser -h /opt/netwark -G netwark -u 1101 -D netwark
 
-CMD pserve --reload development.ini
+USER netwark
+
+RUN poetry install --no-dev
+
+CMD poetry run pserve production.ini
