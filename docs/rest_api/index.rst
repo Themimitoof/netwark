@@ -1,8 +1,12 @@
 REST API documentation
 ======================
+All functionnalities of Netwark are available in a REST API. To access it,
+simply access it by using the ``http[s]://{instance_url}/api/v1/{resource}``.
+
+All resources are documented in the next pages below:
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
     ip-calc
     mac-oui
