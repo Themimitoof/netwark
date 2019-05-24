@@ -295,7 +295,7 @@ def check_operations_statuses():
         )
 
         still_progress = False
-        last_updated = datetime.utcnow()
+        last_updated = datetime.fromtimestamp(0)
 
         for oper in oper_results:
             # If the operation status stalled, updated it.
@@ -339,10 +339,10 @@ def check_operations_statuses():
     )
 
     for oper in oper_results:
-        updated_at_delta = oper.updated_at + timedelta(minutes=1)
+        updated_at_delta = oper.updated_at + timedelta(minutes=2)
         if datetime.utcnow() > updated_at_delta:
             log.info(
-                'Oper result %r have not received any update for 1 minute',
+                'Oper result %r have not received any update for 2 minutes',
                 oper.id,
             )
             oper.status = 'timeout'
