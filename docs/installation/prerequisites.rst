@@ -29,39 +29,56 @@ separate servers (recommended):
 - PostgreSQL_ >= 9
 - Internet connectivity. This point seems stupid, but if you want to retrieve
   information from public resources, you need Internet. More information are
-  added in the next sections.
+  added on the next sections.
 
-On each nodes, you need to install:
+For each nodes, you need to install:
 
-- Python >= 3.5 (We uses python types, not working with previous versions)
+- Python >= 3.5, we use python types, not working with previous versions
+- Poetry_, Poetry seems largely better than Pipenv/Pipfile
 - PostgreSQL libs (needed for communicating with the database)
-- Ping utility (we uses it for... pinging machines)
-- WHOIS utility (we uses it in synchronous and asynchronous tasks for
-  retrieving informations of a public resource of Internet)
-- dig utility (we uses it for retrieving informations from DNS zones and for
-  reverses IPs)
+- Ping utility (we use it for... pinging machines)
+- WHOIS utility (we use it in synchronous and asynchronous tasks for
+  retrieving information of a public resource of Internet)
+- dig utility (we use it for retrieving informations from DNS zones and for
+  reverse DNSs)
 
 
 Webserver prerequisites
--------------------------------
-Because the webserver don't run magic tools (only normal stuff), the webserver
-can be installed on a Windows machine but it's recommended.
+-----------------------
+Because the webserver doesn't run magic tools (only normal stuff), the
+webserver can be installed on a Windows machine but it's recommended.
 
-You need to install on the host in addition of the packages specified on the
+You need to install on the host in addition of the packages specified in the
 last section:
 
 - NodeJS (for retrieving and handling frontend assets)
 - A reverse proxy server (e.g. Apache, Nginx). Exposing the uwsgi/waitress
   are not recommended.
+- Mapbox_ account for showing the maps
 - Internet connectivity. We need Internet for all *synchronous tasks* and for
   updating the database (MAC OUI database) and retrieving new versions of
   *Maxmind databases*.
 
 
 Worker prerequisites
-----------------------------
-The worker
+--------------------
+The worker is a magical part of the project that listen constantly RabbitMQ
+queues that his assigned, ready to run the instructions sent through into
+the queues.
 
+The worker need some magical tools and the listen can increase with the time
+and the next releases.
+
+For this release, each machine hosting a worker need:
+
+- *mtr*, basically a much better *traceroute/ping* utility.
+- *ping*, for receiving ``pong`` from other machines
+- Internet connectivity. Unlike the webserver, the worker doesn't need big
+  requirements in term of bandwidth and traffic needs. In case you are in a
+  cloud environment, you can dedicate few gigabytes (1-2GB) of traffic per
+  months. Of course, it will depend with the usage you will have with Netwark.
 
 .. _RabbitMQ: https://www.rabbitmq.com/
 .. _PostgreSQL: https://www.postgresql.org/docs/
+.. _Poetry: https://poetry.eustace.io/
+.. _Mapbox: https://mapbox.com

@@ -24,6 +24,24 @@ calculator, MAC OUI Lookup and can WHOIS domains, ASN and ip addresses.
 In the future, it's planned to add more tools and the capability to create
 smoke pings graphs and alerts.
 
+Features
+--------
+Today, Netwark is capable to:
+
+- Run asynchronous tasks (operations) with the possibility to broadcast
+  (or not) the tasks to one or multiples machines/queues:
+
+    - Can run ``mtr`` and retrieve a graph
+    - Can run a simple ``ping``
+- Run synchronous tasks for retrieving:
+    - WHOIS informations from *domains names*, *IP addresses* and *ASN numbers*
+    - Retrieve informations about the manufacturer of a device by looking on
+      the *MAC OUI* table
+    - Calculate IPv4/IPv6 subnets with a *IP calculator*
+- Access to all features with a **REST API** or through a sweet web interface
+
+More *network*/*discovery* tools will be added to the list of available tools
+on asynchronous queues.
 
 Deployment informations
 -----------------------
