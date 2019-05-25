@@ -69,6 +69,9 @@ Contributions
 -------------
 Netwark is free and open source software licensed under **MIT** license.
 
+This product includes GeoLite2 data created by MaxMind, available from
+https://www.maxmind.com
+
 You can open issues to report a bug, suggest a new feature/enhancement or open
 a pull request to contribute to the codebase.
 
@@ -81,4 +84,5 @@ create or adapt tests units for all your modifications.
 .. _pylint: https://github.com/PyCQA/pylint
 .. _pycodestyle: https://github.com/PyCQA/pycodestyle
 .. _ESLint: https://github.com/eslint/eslint
+
 

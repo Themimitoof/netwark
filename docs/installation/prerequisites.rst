@@ -36,6 +36,7 @@ For each nodes, you need to install:
 - Python >= 3.5, we use python types, not working with previous versions
 - Poetry_, Poetry seems largely better than Pipenv/Pipfile
 - PostgreSQL libs (needed for communicating with the database)
+- Supervisord or Systemd
 - Ping utility (we use it for... pinging machines)
 - WHOIS utility (we use it in synchronous and asynchronous tasks for
   retrieving information of a public resource of Internet)
@@ -52,6 +53,7 @@ You need to install on the host in addition of the packages specified in the
 last section:
 
 - NodeJS (for retrieving and handling frontend assets)
+- UWSGI with uwsgi-python
 - A reverse proxy server (e.g. Apache, Nginx). Exposing the uwsgi/waitress
   are not recommended.
 - Mapbox_ account for showing the maps
