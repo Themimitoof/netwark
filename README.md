@@ -1,4 +1,10 @@
 # Netwark: A Netadmin tool for lazy netadmins
+<p style="text-align:center">
+   <a href='https://netwark.readthedocs.io/en/latest/?badge=latest'>
+      <img src='https://readthedocs.org/projects/netwark/badge/?version=latest' alt='Documentation Status' />
+   </a>
+</p>
+
 Netwark is a web-based toolkit for lazy systems and network administrators that want to run parellized tools on multiple servers.
 
 Netwark can help you to run `ping` or `mtr` on a single machine, all machines of the network or a group of machines. It embed some tools like **IPv4/IPv6 calculator**, **MAC OUI Lookup** and can **WHOIS** _domains, ASN and ip addresses_.

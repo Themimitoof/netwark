@@ -43,6 +43,13 @@ For each nodes, you need to install:
 - dig utility (we use it for retrieving informations from DNS zones and for
   reverse DNSs)
 
+If you want to use Docker, install on your machines:
+
+- Docker_ >= 18.08
+- `Docker-compose`_
+
+.. _`Docker`: https://docs.docker.com/install/
+.. _`Docker-compose`: https://docs.docker.com/compose/
 
 Webserver prerequisites
 -----------------------

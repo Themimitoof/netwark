@@ -9,9 +9,10 @@ services:
     # command: poetry run pserve --reload production.ini
     ports:
       - 127.0.0.1:6543:6543
-    #volumes:
-    #   - ./development.ini:/opt/netwark/production.ini
-    #   - ./:/opt/netwark # Uncomment this line if you are developping new features
+    volumes:
+      - ./maxmind_db:/opt/netwark/maxmind_db
+    # - ./development.ini:/opt/netwark/production.ini
+    # - ./:/opt/netwark # Uncomment this line if you are developping new features
     depends_on:
       - db
       - rabbit
@@ -26,7 +27,6 @@ services:
     command: poetry run python netwark/bin/celery_backend.py development.ini
     #volumes:
     #   - ./development.ini:/opt/netwark/production.ini
-    #   - ./maxmind_db:/opt/netwark/maxmind_db:ro
     #   - ./:/opt/netwark  # Uncomment this line if you are developping new features
     depends_on:
       - db

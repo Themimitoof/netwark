@@ -164,8 +164,9 @@ boot:
     systemctl enable netwark-webserver
 
 
-Voilà! You have done the deployment of the werbserver! We recommand to follow the
-`configuration page`_ to adjust your installation.
+Voilà! You have done the deployment of the werbserver! We recommand now to
+configure your **reverse proxy** and follow the `configuration page`_ to adjust
+your installation settings.
 
 Deploy the worker
 -----------------
@@ -278,12 +279,69 @@ start automatically on boot by using:
     systemctl enable netwark-worker
 
 
-Voilà! You have done the deployment of the worker! We recommand to follow the
-`configuration page`_ to adjust your installation.
+Voilà! You have done the deployment of the worker! We recommand now to follow
+the `configuration page`_ to adjust your installation settings.
 
 Install on Docker
 =================
-fdsfds
+The deployment in Docker is much easier than the deployment on multiple
+machines but it can be painful if you want create a dedicated network across
+all your machines.
 
+.. note::
+    We uses *alpine* images to have a minimum as possible footprint on the host
+    machine and uses intermediate builds for not storing useless parts on our
+    images (e.g. *node* and his *node_module* folder).
+
+First above, you need to go into the ``config`` folder and create a copy of all
+files or ``netwark_backend.yaml.example`` and ``production.ini.example``,
+and remove the ``.example`` in the extension.
+
+Editing theses files are not needed for now, they already are configured for
+using the *PostgreSQL* and the *RabbitMQ* configured in the
+``docker-compose.yml`` file.
+
+Before building the base image, we need to create a ``.mapbox-token`` file at
+the root folder of Netwark that contain the **access token** of
+your Mapbox account.
+
+Now, everything is ready to build the base image for the webserver and the
+worker. To do that, simply run the command:
+
+.. code-block:: bash
+
+    docker-compose build
+
+Now, we need to run some scripts on the `webserver` container to run
+*database migrations* and fill the `MAC OUI table`, retrieve `MaxMind DBs`. To
+do this, run theses three commands:
+
+.. code-block:: bash
+
+    # Run database migrations
+    docker-compose run --rm webserver poetry run alembic -c config/production.ini upgrade head
+
+    # Fill the `MAC OUI` table
+    docker-compose run --rm webserver poetry run python netwark/bin/update_oui_vendor_table.py config/production.ini
+
+    # Update MaxMind DBs
+    docker-compose run --rm webserver poetry run python netwark/bin/update_maxmind_db.py config/production.ini
+
+At this point, the installation is finished! You can now execute
+``docker-compose up -d`` to start the complete stack.
+
+If you want Docker starts the whole stack on boot, replace
+``restart: on-failure`` in the ``docker-compose.yml`` file by
+``restart: always``.
+
+To test if everything works like a watch, watch the logs with
+``docker-compose -f`` and open your browser and test if Netwark respond by
+accessing to http://localhost:6543.
+
+Voilà! The complete stack is running on a single machine! You can now use
+*swarm*, *kubernetes* or create a tunnel on the host to communicate with other
+machines and add more workers to your Netwark installation. We recommand now to
+configure your **reverse proxy** and follow the `configuration page`_ to adjust
+your installation settings.
 
 .. _`configuration page`: configuration
