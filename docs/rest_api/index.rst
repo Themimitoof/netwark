@@ -5,6 +5,9 @@ simply access it by using the ``http[s]://{instance_url}/api/v1/{resource}``.
 
 All resources are documented in the next pages below:
 
+.. note::
+    The documentation of the REST API are temporarily disabled.
+
 .. toctree::
     :maxdepth: 1
 
