@@ -6,18 +6,46 @@
 [app:main]
 use = egg:netwark
 
-pyramid.reload_templates = false
+pyramid.reload_templates = true
 pyramid.debug_authorization = false
 pyramid.debug_notfound = false
 pyramid.debug_routematch = false
 pyramid.default_locale_name = en
 pyramid.includes =
     pypugjs.ext.pyramid
+    pyramid_debugtoolbar
     pyramid_tm
 
-sqlalchemy.url = sqlite:///%(here)s/netwark.sqlite
-
 retry.attempts = 3
+
+# Database URL
+sqlalchemy.url = postgresql://postgres:ReallyBadPwd@db.netwark/netwark?client_encoding=utf8
+
+# Replace this part by a strong, long random generated string!
+session.token = 'change_this_part_by_a_random_part'
+
+# By default, the toolbar only appears for clients from IP addresses
+# '127.0.0.1' and '::1'.
+debugtoolbar.hosts = 127.0.0.1 ::1
+
+
+#################################
+# Netwark specific configuration
+
+# Path of the configuration file for Celery (workers)
+backend.config = %(here)s/config/netwark_backend.yaml
+
+# Folder containing maxmind databases
+geoip_database.city = %(here)s/maxmind_db/GeoLite2-City.mmdb
+geoip_database.asn = %(here)s/maxmind_db/GeoLite2-ASN.mmdb
+
+# End of Netwark specific configuration
+########################################
+
+
+# Cornice conf
+handle_exceptions =
+
 
 [pshell]
 setup = netwark.pshell.setup
@@ -34,7 +62,8 @@ file_template = %%(year)d%%(month).2d%%(day).2d_%%(rev)s
 
 [server:main]
 use = egg:waitress#main
-listen = *:6543
+listen = localhost:6543
+
 
 ###
 # logging configuration
@@ -51,11 +80,11 @@ keys = console
 keys = generic
 
 [logger_root]
-level = WARN
+level = INFO
 handlers = console
 
 [logger_netwark]
-level = WARN
+level = DEBUG
 handlers =
 qualname = netwark
 

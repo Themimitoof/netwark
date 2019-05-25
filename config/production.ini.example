@@ -6,33 +6,36 @@
 [app:main]
 use = egg:netwark
 
-pyramid.reload_templates = true
+pyramid.reload_templates = false
 pyramid.debug_authorization = false
 pyramid.debug_notfound = false
 pyramid.debug_routematch = false
 pyramid.default_locale_name = en
 pyramid.includes =
     pypugjs.ext.pyramid
-    pyramid_debugtoolbar
     pyramid_tm
-
-; sqlalchemy.url = sqlite:///%(here)s/netwark.sqlite
-sqlalchemy.url = postgresql://postgres:ReallyBadPwd@db.netwark/netwark?client_encoding=utf8
-
-backend.config = %(here)s/config/netwark_backend.yaml
-session.token = 'change_this_part_by_a_random_part'
 
 retry.attempts = 3
 
-# By default, the toolbar only appears for clients from IP addresses
-# '127.0.0.1' and '::1'.
-debugtoolbar.hosts = 127.0.0.1 ::1
+# Database URL
+sqlalchemy.url = postgresql://postgres:ReallyBadPwd@db.netwark/netwark?client_encoding=utf8
 
-geoip_database.city = %(here)s/maxmind_db/GeoLite2-City.mmdb
-geoip_database.asn = %(here)s/maxmind_db/GeoLite2-ASN.mmdb
+# Replace this part by a strong, long random generated string!
+session.token = 'change_this_part_by_a_random_part'
 
-# Cornice conf
-handle_exceptions =
+
+#################################
+# Netwark specific configuration
+
+# Path of the configuration file for Celery (workers)
+backend.config = %(here)s/netwark_backend.yaml
+
+# Folder containing maxmind databases
+geoip_database.city = %(here)s/../maxmind_db/GeoLite2-City.mmdb
+geoip_database.asn = %(here)s/../maxmind_db/GeoLite2-ASN.mmdb
+
+# End of Netwark specific configuration
+########################################
 
 
 [pshell]
@@ -50,22 +53,7 @@ file_template = %%(year)d%%(month).2d%%(day).2d_%%(rev)s
 
 [server:main]
 use = egg:waitress#main
-listen = localhost:6543
-
-
-[uwsgi]
-proj = netwark
-processes = 2
-threads = 2
-offload-threads = 2
-stats =  127.0.0.1:9191
-max-requests = 5000
-master = True
-vacuum = True
-enable-threads = true
-harakiri = 60
-chmod-socket = 020
-plugin = python3
+listen = *:6543
 
 ###
 # logging configuration
@@ -82,11 +70,11 @@ keys = console
 keys = generic
 
 [logger_root]
-level = INFO
+level = WARN
 handlers = console
 
 [logger_netwark]
-level = DEBUG
+level = WARN
 handlers =
 qualname = netwark
 

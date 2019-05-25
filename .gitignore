@@ -30,4 +30,6 @@ maxmind_db/
 .mapbox-token
 docs/_build/
 docker/data/
+config/*.ini
+config/*.yaml
 celerybeat-schedule
