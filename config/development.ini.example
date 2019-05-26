@@ -33,11 +33,11 @@ debugtoolbar.hosts = 127.0.0.1 ::1
 # Netwark specific configuration
 
 # Path of the configuration file for Celery (workers)
-backend.config = %(here)s/config/netwark_backend.yaml
+backend.config = %(here)s/netwark_backend.yaml
 
 # Folder containing maxmind databases
-geoip_database.city = %(here)s/maxmind_db/GeoLite2-City.mmdb
-geoip_database.asn = %(here)s/maxmind_db/GeoLite2-ASN.mmdb
+geoip_database.city = %(here)s/../maxmind_db/GeoLite2-City.mmdb
+geoip_database.asn = %(here)s/../maxmind_db/GeoLite2-ASN.mmdb
 
 # End of Netwark specific configuration
 ########################################
