@@ -2,7 +2,7 @@ version: '3'
 
 services:
   # Netwark web service
-  netwark:
+  webserver:
     build: .
     restart: on-failure
     # Uncomment this part if you are developping new features

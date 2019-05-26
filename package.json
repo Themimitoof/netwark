@@ -29,8 +29,8 @@
     "gulp-rename": "^1.4.0",
     "gulp-replace": "^1.0.0",
     "gulp-sass": "^4.0.2",
-    "gulp-terser": "^1.1.7",
-    "leaflet": "^1.4.0",
+    "gulp-terser": "^1.2.0",
+    "leaflet": "^1.5.1",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0"
   }
