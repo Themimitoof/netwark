@@ -112,7 +112,11 @@ block content
                                     .timeline
                                         each hub in result.payload['report']['hubs']
                                             .timeline-node
-                                                span.hostname !{hub['host']} [!{hub['ASN']}]
+                                                span.hostname !{hub['host']} &nbsp;
+                                                    if 'ASN' in hub
+                                                        | [!{hub['ASN']}]
+                                                    else
+                                                        | [AS???]
 
                                                 .siimple-table
                                                     .siimple-table-header
