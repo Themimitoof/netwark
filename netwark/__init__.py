@@ -13,6 +13,8 @@ from .models.operation import OPERATION_FLAGS
 log = logging.getLogger(__name__)
 celery_app = Celery(include=['netwark.backend.tasks'])
 
+__VERSION__ = '0.1.0'
+
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.

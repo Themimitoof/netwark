@@ -11,7 +11,7 @@ Welcome to Netwark's documentation!
 
   architecture
   installation/index
-  rest_api/index
+  rest_api
 
 
 Netwark is a web-based toolkit for lazy systems and network administrators that

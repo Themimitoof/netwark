@@ -31,7 +31,8 @@ dev_require = [
     'pycodestyle',
     'sphinx',
     'sphinc-rtd-theme',
-    'cornice_sphinx',
+    'cornice_swagger',
+    'sphinxcontrib-openapi',
     'black',
 ]
 
