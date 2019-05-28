@@ -119,48 +119,34 @@
             & > .timeline-node {
                 display: flex;
                 flex-direction: column;
-                padding: 15px;
-                margin-bottom: 50px;
-                margin-left: 40px;
-                overflow-y: scroll;
+                margin-bottom: 30px;
 
-                background-color: #f9f9f9;
+                overflow: auto;
+
+                background-color: #fff;
                 border-radius: 5px;
 
+                box-shadow: 10px 10px 20px #00000022;
+
                 & > .hostname {
+                    display: block;
                     font-size: 18px;
                     font-weight: lighter;
-                    margin-bottom: 15px;
+                    color: #a7a7a7;
+                    background: #e9e9e9;
+                    padding: 8px 8px 8px 20px;
+                    box-sizing: border-box;
                 }
 
                 & > .siimple-table {
                     margin: 0;
+                    padding: 10px 20px 10px 20px;
+                    
+                    & .siimple-table-cell {
+                        border: none;
+                        padding: 0;
+                    }
                 }
-
-                &::after {
-                    position: absolute;
-                    width: 50px;
-                    height: 2px;
-                    top: 50%;
-                    left: 15px;
-
-                    background-color: #d8d8d8;
-                    content: " ";
-                    z-index: -1;
-
-                }
-            }
-
-            &::after {
-                position: absolute;
-                width: 2px;
-                height: 100%;
-                top: 0;
-                left: 15px;
-                margin-top: 30px;
-
-                background: #d8d8d8;
-                content: " ";
             }
         }
 
