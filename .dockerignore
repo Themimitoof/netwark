@@ -1,5 +1,7 @@
 .pytest_cache
 .vscode
+bin/
+!netwark/bin
 docker/data
 node_modules
 *.egg
