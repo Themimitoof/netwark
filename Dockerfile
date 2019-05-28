@@ -12,9 +12,15 @@ COPY . /opt/netwark
 COPY --from=build-env /opt/netwark/dist /opt/netwark/dist
 WORKDIR /opt/netwark
 
-RUN apk add --no-cache postgresql-client postgresql-libs bash mtr && \
+RUN apk add --no-cache \
+        postgresql-client \
+        postgresql-libs \
+        bash \
+        mtr \
+        uwsgi \
+        uwsgi-python3 && \
     apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev && \
-    pip install poetry
+    pip install poetry pasteScript
 
 
 RUN cp docker/entrypoint.sh /entrypoint.sh && \
@@ -28,4 +34,10 @@ USER netwark
 
 RUN poetry install --no-dev
 
-CMD poetry run pserve production.ini
+EXPOSE 6543
+
+CMD poetry run pserve config/production.ini
+
+# Prepare the ground for using uwsgi instead of pserve.
+# For the moment, it not work because uwsgi doesn't find paste module.
+#CMD uwsgi --plugin=python3 -H /opt/netwark/.cache/pypoetry/virtualenvs/netwark-py3.7/ -M --workers 2 --enable-threads --http-socket 127.0.0.1:6543 --listen 64 --paste=config:/opt/netwark/config/development.ini --paste-logger
