@@ -1,4 +1,5 @@
 import logging
+from os import path
 
 from pyramid.config import Configurator
 from geoip2.database import Reader, MODE_MEMORY
@@ -10,8 +11,8 @@ def configure_geoip_readers(config: Configurator):
     """
     Set GeoIP readers in memory and expose them with request_methods.
     """
-    city_db = config.registry.settings['geoip_database.city']
-    asn_db = config.registry.settings['geoip_database.asn']
+    city_db = path.abspath(config.registry.settings['geoip_database.city'])
+    asn_db = path.abspath(config.registry.settings['geoip_database.asn'])
 
     city_reader = Reader(city_db, None, MODE_MEMORY)
     asn_reader = Reader(asn_db, None, MODE_MEMORY)

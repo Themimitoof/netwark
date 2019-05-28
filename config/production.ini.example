@@ -18,7 +18,7 @@ pyramid.includes =
 retry.attempts = 3
 
 # Database URL
-sqlalchemy.url = postgresql://postgres:ReallyBadPwd@db.netwark/netwark?client_encoding=utf8
+sqlalchemy.url = postgresql://postgres:ReallyBadPwd@psql.netwark/netwark?client_encoding=utf8
 
 # Replace this part by a strong, long random generated string!
 session.token = 'change_this_part_by_a_random_part'
@@ -31,11 +31,14 @@ session.token = 'change_this_part_by_a_random_part'
 backend.config = %(here)s/netwark_backend.yaml
 
 # Folder containing maxmind databases
-geoip_database.city = %(here)s/../maxmind_db/GeoLite2-City.mmdb
-geoip_database.asn = %(here)s/../maxmind_db/GeoLite2-ASN.mmdb
+geoip_database.city = %(here)s/maxmind_db/GeoLite2-City.mmdb
+geoip_database.asn = %(here)s/maxmind_db/GeoLite2-ASN.mmdb
 
 # End of Netwark specific configuration
 ########################################
+
+# Cornice conf
+handle_exceptions =
 
 
 [pshell]

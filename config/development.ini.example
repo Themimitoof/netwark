@@ -19,7 +19,7 @@ pyramid.includes =
 retry.attempts = 3
 
 # Database URL
-sqlalchemy.url = postgresql://postgres:ReallyBadPwd@db.netwark/netwark?client_encoding=utf8
+sqlalchemy.url = postgresql://postgres:ReallyBadPwd@psql.netwark/netwark?client_encoding=utf8
 
 # Replace this part by a strong, long random generated string!
 session.token = 'change_this_part_by_a_random_part'

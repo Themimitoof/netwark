@@ -11,3 +11,5 @@ pip-wheel-metadata
 *.sqlite
 *.db
 venv*
+maxmind_db
+celerybeat-schedule

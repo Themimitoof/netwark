@@ -12,11 +12,15 @@ COPY . /opt/netwark
 COPY --from=build-env /opt/netwark/dist /opt/netwark/dist
 WORKDIR /opt/netwark
 
-RUN apk add --no-cache \
+RUN apk update && \
+    apk add --no-cache \
         postgresql-client \
         postgresql-libs \
         bash \
         mtr \
+        iputils \
+        whois \
+        bind-tools \
         uwsgi \
         uwsgi-python3 && \
     apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev && \

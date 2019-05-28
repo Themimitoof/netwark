@@ -6,12 +6,12 @@ services:
     build: .
     restart: on-failure
     # Uncomment this part if you are developping new features
-    # command: poetry run pserve --reload production.ini
+    # command: poetry run pserve --reload config/production.ini
     ports:
       - 127.0.0.1:6543:6543
     volumes:
-      - ./maxmind_db:/opt/netwark/maxmind_db
-    # - ./development.ini:/opt/netwark/production.ini
+     - ./maxmind_db:/opt/netwark/maxmind_db:rw
+    # - ./config/development.ini:/opt/netwark/config/production.ini
     # - ./:/opt/netwark # Uncomment this line if you are developping new features
     depends_on:
       - db
@@ -24,10 +24,11 @@ services:
   backend:
     build: .
     restart: on-failure
-    command: poetry run python netwark/bin/celery_backend.py development.ini
-    #volumes:
-    #   - ./development.ini:/opt/netwark/production.ini
-    #   - ./:/opt/netwark  # Uncomment this line if you are developping new features
+    command: poetry run python netwark/bin/celery_backend.py /opt/netwark/config/production.ini
+    volumes:
+     - ./config/netwark_backend.yaml:/opt/netwark/config/netwark_backend.yaml
+      - ./config/development.ini:/opt/netwark/config/production.ini
+    #  - ./:/opt/netwark  # Uncomment this line if you are developping new features
     depends_on:
       - db
       - rabbit

@@ -2,6 +2,7 @@ import os
 import sys
 import logging
 import argparse
+from os import path
 from subprocess import Popen
 from hashlib import md5
 import requests
@@ -22,6 +23,8 @@ def download_new_db(settings):
     """
     Status download all new MaxMind DBs
     """
+    asn_path = path.abspath(settings['geoip_database.asn'])
+    city_path = path.abspath(settings['geoip_database.city'])
 
     # Download City database
     log.info('Downloading new version of City database...')
@@ -52,12 +55,8 @@ def download_new_db(settings):
     os.system('mkdir -p $(dirname {})'.format(settings['geoip_database.asn']))
 
     log.info('Copy new databases to their destination folders')
-    os.system(
-        'cp /tmp/GeoLite2-City*/*.mmdb ' + settings['geoip_database.city']
-    )
-    os.system(
-        'cp /tmp/GeoLite2-ASN*/*.mmdb ' + settings['geoip_database.asn']
-    )
+    os.system('cp /tmp/GeoLite2-City*/*.mmdb ' + city_path)
+    os.system('cp /tmp/GeoLite2-ASN*/*.mmdb ' + asn_path)
 
     # Delete temporary files
     log.info('Delete temporary files')
