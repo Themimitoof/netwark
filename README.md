@@ -5,6 +5,17 @@
    </a>
 </p>
 
+> **Disclamer:**
+>
+> Netwark is currently in development and are still considered as **unstable**
+> (but usable). We recommand to check
+> https://github.com/Themimitoof/netwark/projects/2 to see the content of the
+> next release.
+>
+> The documentation allows you to deploy Netwark but you need to have some
+> knowledges about deploying a PostgreSQL and a RabbitMQ server.
+
+
 Netwark is a web-based toolkit for lazy systems and network administrators that want to run parellized tools on multiple servers.
 
 Netwark can help you to run `ping` or `mtr` on a single machine, all machines of the network or a group of machines. It embed some tools like **IPv4/IPv6 calculator**, **MAC OUI Lookup** and can **WHOIS** _domains, ASN and ip addresses_.
@@ -26,7 +37,7 @@ Today, Netwark is capable to:
 More *network*/*discovery* tools will be added to the list of available tools on asynchronous queues.
 
 # Deployment informations
-Netwark is completly written in Python using [Pyramid Framework](https://trypyramid.com/), [Cornice](http://cornice.readthedocs.io/), [Celery](https://docs.celeryproject.org/en/latest) and uses PostgreSQL has database.
+Netwark is completely written in Python using [Pyramid Framework](https://trypyramid.com/), [Cornice](http://cornice.readthedocs.io/), [Celery](https://docs.celeryproject.org/en/latest) and uses PostgreSQL has database.
 
 **Requirements:**
  * **Linux/Unix host**: the server can works on _Windows_ but the worker need some commands that only work on a true _Linux/Unix_ environment (WSL don't allow to play with raw sockets).
