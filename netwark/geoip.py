@@ -28,5 +28,5 @@ def configure_geoip_readers(config: Configurator):
 
 
 def includeme(config):
-    log.debug('Configuring GeoIP readers...')
+    log.info('Configuring GeoIP readers...')
     configure_geoip_readers(config)

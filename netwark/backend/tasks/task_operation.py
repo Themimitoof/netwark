@@ -82,7 +82,7 @@ def run_operation(self, oper_id: str):
         operation_id=oper_id,
         worker=hostname,
         queue=queue,
-        status='progress'
+        status='progress',
     )
     oper_result_id = oper_result.id
 
@@ -116,9 +116,11 @@ def run_operation(self, oper_id: str):
             operation.type,
         )
 
-        oper = session.query(OperationResult).filter(
-            OperationResult.id == oper_result_id
-        ).first()
+        oper = (
+            session.query(OperationResult)
+            .filter(OperationResult.id == oper_result_id)
+            .first()
+        )
         oper.status = 'error'
         oper.payload = {'cause': 'Tool not available on this worker.'}
 
@@ -142,9 +144,11 @@ def run_operation(self, oper_id: str):
                 oper_type,
             )
 
-            oper = session.query(OperationResult).filter(
-                OperationResult.id == oper_result_id
-            ).first()
+            oper = (
+                session.query(OperationResult)
+                .filter(OperationResult.id == oper_result_id)
+                .first()
+            )
             oper.status = 'timeout'
 
             session.add(oper)
@@ -154,9 +158,11 @@ def run_operation(self, oper_id: str):
             return
         elif time.time() - update_timer >= 20:
             update_timer = time.time()  # Reset the timer
-            oper = session.query(OperationResult).filter(
-                OperationResult.id == oper_result_id
-            ).first()
+            oper = (
+                session.query(OperationResult)
+                .filter(OperationResult.id == oper_result_id)
+                .first()
+            )
             oper.updated_at = now()
 
             session.add(oper)
@@ -203,9 +209,11 @@ def run_operation(self, oper_id: str):
             db_payload['average'] = float(stats[1])
             db_payload['max'] = float(stats[2])
 
-            oper = session.query(OperationResult).filter(
-                OperationResult.id == oper_result_id
-            ).first()
+            oper = (
+                session.query(OperationResult)
+                .filter(OperationResult.id == oper_result_id)
+                .first()
+            )
             oper.status = 'done'
             oper.payload = db_payload
 
@@ -214,6 +222,10 @@ def run_operation(self, oper_id: str):
             transaction.commit()
         elif oper_type == 'mtr':
             stdout = cmd.stdout.read().decode('utf-8')
+
+            # Fix a bug in the 0.91 of mtr that breaks the JSON because a
+            # wild string insert when the hop leap.
+            stdout = stdout.replace(r'@Not a TXT record', '')
 
             try:
                 db_payload = json.loads(stdout)
@@ -229,9 +241,11 @@ def run_operation(self, oper_id: str):
 
                 result_status = 'error'
 
-            oper = session.query(OperationResult).filter(
-                OperationResult.id == oper_result_id
-            ).first()
+            oper = (
+                session.query(OperationResult)
+                .filter(OperationResult.id == oper_result_id)
+                .first()
+            )
             oper.status = result_status
             oper.payload = db_payload
 
@@ -248,9 +262,11 @@ def run_operation(self, oper_id: str):
 
         log.error('The tool was exited with a error message: %r', db_payload)
 
-        oper = session.query(OperationResult).filter(
-            OperationResult.id == oper_result_id
-        ).first()
+        oper = (
+            session.query(OperationResult)
+            .filter(OperationResult.id == oper_result_id)
+            .first()
+        )
         oper.status = 'error'
         oper.payload = db_payload
 
@@ -323,10 +339,7 @@ def check_operations_statuses():
                 last_updated = oper.updated_at
 
         last_updated_delta = last_updated + timedelta(minutes=1)
-        if (
-            not still_progress
-            and datetime.utcnow() > last_updated_delta
-        ):
+        if not still_progress and datetime.utcnow() > last_updated_delta:
             log.info(
                 'Operation %r have not received any update for 1 minute',
                 operation.id,

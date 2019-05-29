@@ -327,6 +327,16 @@ do this, run theses three commands:
     # Update MaxMind DBs
     docker-compose run --rm webserver poetry run python netwark/bin/update_maxmind_db.py config/production.ini
 
+.. warning::
+    If you want to mount the folder that contain maxmind databases,
+    please execute theses commands before running the command for updating
+    maxmind DBs:
+
+    .. code-block:: bash
+
+        mkdir maxmind_db
+        chown 1100:1101 maxmind_db  # 1100 and 1101 are GID/UID inside the container
+
 At this point, the installation is finished! You can now execute
 ``docker-compose up -d`` to start the complete stack.
 

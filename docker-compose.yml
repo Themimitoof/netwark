@@ -10,9 +10,9 @@ services:
     ports:
       - 127.0.0.1:6543:6543
     volumes:
-     - ./maxmind_db:/opt/netwark/maxmind_db:rw
-    # - ./config/development.ini:/opt/netwark/config/production.ini
-    # - ./:/opt/netwark # Uncomment this line if you are developping new features
+      - ./maxmind_db:/opt/netwark/maxmind_db:rw
+      # - ./config/production.ini:/opt/netwark/config/production.ini
+      # - ./netwark:/opt/netwark/netwark # Uncomment this line if you are developping new features
     depends_on:
       - db
       - rabbit
@@ -25,10 +25,10 @@ services:
     build: .
     restart: on-failure
     command: poetry run python netwark/bin/celery_backend.py /opt/netwark/config/production.ini
-    volumes:
-     - ./config/netwark_backend.yaml:/opt/netwark/config/netwark_backend.yaml
-      - ./config/development.ini:/opt/netwark/config/production.ini
-    #  - ./:/opt/netwark  # Uncomment this line if you are developping new features
+    # volumes:
+      # - ./config/netwark_backend.yaml:/opt/netwark/config/netwark_backend.yaml
+      # - ./config/development.ini:/opt/netwark/config/production.ini
+      # - ./netwark:/opt/netwark/netwark  # Uncomment this line if you are developping new features
     depends_on:
       - db
       - rabbit

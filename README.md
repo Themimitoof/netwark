@@ -8,7 +8,7 @@
 > **Disclamer:**
 >
 > Netwark is currently in development and are still considered as **unstable**
-> (but usable). We recommand to check
+> (but usable). See this project like a PoC. We recommand to check
 > https://github.com/Themimitoof/netwark/projects/2 to see the content of the
 > next release.
 >
