@@ -44,7 +44,7 @@ tests_require = [
 
 setup(
     name='netwark',
-    version='0.1.0',
+    version='1.0.0',
     description='netwark',
     long_description=README + '\n\n' + CHANGES,
     classifiers=[

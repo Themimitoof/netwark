@@ -1,3 +1,15 @@
+1.0.0
+-----
+
+/!\ This version is considered as unstable! Please consider this release as a PoC before
+    creating cool features /!\
+
+  - Create a first version of the frontend
+  - Create a REST API for almost all features
+  - Create synchronous WHOIS, IPCalc and MAC OUI lookup tools 
+  - Create a first version of asynchronous operation system (not complete, consider it as a PoC)
+  - Create the base of Netwark
+
 0.0
 ---
 
