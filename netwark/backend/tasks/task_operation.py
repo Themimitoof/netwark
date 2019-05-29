@@ -54,12 +54,13 @@ def run_operation(self, oper_id: str):
         if not operation:
             return
 
+    oper_id = operation.id
+    oper_type = operation.type
+
     # Update the operation status if is still in pending
     if operation.status == 'pending':
         operation.status = 'progress'
 
-        oper_id = operation.id
-        oper_type = operation.type
         session.add(operation)
         session.flush()
         transaction.commit()
@@ -103,7 +104,7 @@ def run_operation(self, oper_id: str):
         command.append(operation.target)
     elif operation.type == 'mtr':
         options = (
-            operation.options + ' -j' if operation.options else '-bzrj -c10'
+            operation.options + ' -j' if operation.options else '-bzj -c10'
         )
 
         command = ['mtr']
@@ -126,6 +127,7 @@ def run_operation(self, oper_id: str):
         transaction.commit()
         return
 
+    log.info('Running %r with options: %r', command[0], command[1])
     cmd = Popen(command, stdout=PIPE, stderr=PIPE)  # Run the command
     timeout_timer = time.time()
     update_timer = time.time()
@@ -243,6 +245,8 @@ def run_operation(self, oper_id: str):
             'stdout': cmd.stdout.read().decode('utf-8').split('\n'),
             'stderr': cmd.stderr.read().decode('utf-8').split('\n'),
         }
+
+        log.error('The tool was exited with a error message: %r', db_payload)
 
         oper = session.query(OperationResult).filter(
             OperationResult.id == oper_result_id
