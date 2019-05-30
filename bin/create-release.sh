@@ -80,7 +80,8 @@ mv $ROOT_DIR/CHANGES.txt.new $ROOT_DIR/CHANGES.txt || revert_release
 sed -i -E "s/(version=')$CUR_VERSION(')/\1$NEW_VERSION\2/g" $ROOT_DIR/setup.py || revert_release
 sed -i -E "s/(\"version\": \")$CUR_VERSION(\")/\1$NEW_VERSION\2/g" $ROOT_DIR/package.json || revert_release
 sed -i -E "s/(version = \")$CUR_VERSION(\")/\1$NEW_VERSION\2/g" $ROOT_DIR/pyproject.toml || revert_release
-sed -i -E "s/(__VERSION__ = ')$CUR_VERSION(')/\1$NEW_VERSION\2/g" $ROOT_DIR/netwark/__init__.py || revert_release
+sed -i -E "s/(version = ').*(')/\1$SHORT_NEW_VERSION\2/g" $ROOT_DIR/docs/conf.py || revert_release
+sed -i -E "s/(release = ')$CUR_VERSION(')/\1$NEW_VERSION\2/g" $ROOT_DIR/docs/conf.py || revert_release
 
 # Commit the new version
 git commit -am "Release version $NEW_VERSION 🎉" || revert_release

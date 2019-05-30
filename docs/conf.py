@@ -15,7 +15,6 @@
 import os
 import sys
 import cornice
-from netwark import __VERSION__
 
 sys.path.insert(0, os.path.abspath(cornice.__file__))
 
@@ -26,13 +25,10 @@ project = 'Netwark'
 copyright = '2019, Michael Vieira'
 author = 'Michael Vieira'
 
-short_version = __VERSION__.split('.')
-short_version = '.'.join(short_version[:2])
-
 # The short X.Y version
-version = short_version
+version = '1.0'
 # The full version, including alpha/beta/rc tags
-release = __VERSION__
+release = '1.0.0'
 
 
 # -- General configuration ---------------------------------------------------
